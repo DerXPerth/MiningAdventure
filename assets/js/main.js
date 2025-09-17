@@ -140,6 +140,15 @@ export const INITIAL_STATE = () => ({
   timeline: [],
 });
 
+export const DEFAULT_PREFERENCES = () => ({
+  fontScale: 1,
+  theme: 'default',
+  autoTrade: false,
+  experimentalWeather: false,
+  notifyGuild: true,
+  windowScale: 1,
+});
+
 const generateId = () => {
   if (crypto?.randomUUID) return crypto.randomUUID();
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -290,6 +299,27 @@ export class AccountStore {
     }
   }
 
+  ensureAccountShape(account) {
+    if (!account.state) {
+      account.state = INITIAL_STATE();
+    }
+    if (!account.preferences) {
+      account.preferences = DEFAULT_PREFERENCES();
+    } else {
+      account.preferences = {
+        ...DEFAULT_PREFERENCES(),
+        ...account.preferences,
+      };
+    }
+    if (typeof account.tutorialCompleted !== 'boolean') {
+      account.tutorialCompleted = false;
+    }
+    if (typeof account.tutorialSkipped !== 'boolean') {
+      account.tutorialSkipped = false;
+    }
+    return account;
+  }
+
   saveAccounts(accounts) {
     this.storage.setItem(STORAGE_KEYS.accounts, JSON.stringify(accounts));
   }
@@ -298,10 +328,10 @@ export class AccountStore {
     const accounts = this.loadAccounts();
     const index = accounts.findIndex((acc) => acc.username === account.username);
     const previous = index >= 0 ? accounts[index] : null;
-    const stored = {
+    const stored = this.ensureAccountShape({
       ...(previous || {}),
       ...account,
-    };
+    });
     if (account.password) {
       stored.password = account.password;
     } else if (previous?.password) {
@@ -318,7 +348,8 @@ export class AccountStore {
   }
 
   findAccount(username) {
-    return this.loadAccounts().find((acc) => acc.username === username) || null;
+    const account = this.loadAccounts().find((acc) => acc.username === username) || null;
+    return account ? this.ensureAccountShape(account) : null;
   }
 
   registerLocal({ username, password, company }) {
@@ -327,13 +358,12 @@ export class AccountStore {
       return { success: false, message: 'Benutzername bereits vergeben.' };
     }
 
-    const account = {
+    const account = this.ensureAccountShape({
       username,
       company,
       password: this.hash(password),
-      state: INITIAL_STATE(),
       createdAt: new Date().toISOString(),
-    };
+    });
 
     accounts.push(account);
     this.saveAccounts(accounts);
@@ -348,10 +378,10 @@ export class AccountStore {
     try {
       const result = await this.remote.register(payload);
       if (result.success && result.account) {
-        const cachedAccount = {
+        const cachedAccount = this.ensureAccountShape({
           ...result.account,
           password: this.hash(payload.password),
-        };
+        });
         this.cacheAccount(cachedAccount);
       }
       return result;
@@ -373,7 +403,7 @@ export class AccountStore {
     this.storage.setItem(STORAGE_KEYS.active, username);
     this.storage.removeItem(STORAGE_KEYS.session);
     this.session = null;
-    return { success: true, account };
+    return { success: true, account: this.ensureAccountShape(account) };
   }
 
   async login(payload) {
@@ -393,11 +423,13 @@ export class AccountStore {
         this.storage.setItem(STORAGE_KEYS.session, session);
       }
       if (account) {
-        const cachedAccount = {
+        const cachedAccount = this.ensureAccountShape({
           ...account,
           password: this.hash(payload.password),
-        };
+        });
         this.cacheAccount(cachedAccount);
+        this.storage.setItem(STORAGE_KEYS.active, cachedAccount.username);
+        return { success: true, account: cachedAccount };
       }
       this.storage.setItem(STORAGE_KEYS.active, payload.username);
       return { success: true, account };
@@ -413,6 +445,7 @@ export class AccountStore {
     this.pendingSync = {
       username: account.username,
       state: account.state,
+      preferences: account.preferences,
     };
     window.clearTimeout(this.syncTimeout);
     this.syncTimeout = window.setTimeout(() => this.flush(), 600);
@@ -423,6 +456,7 @@ export class AccountStore {
     const payload = {
       session: this.session,
       state: this.pendingSync.state,
+      preferences: this.pendingSync.preferences,
     };
     try {
       await this.remote.saveState(payload);
@@ -433,7 +467,7 @@ export class AccountStore {
   }
 
   updateAccount(account) {
-    this.scheduleSync(account);
+    this.scheduleSync(this.ensureAccountShape(account));
   }
 
   async restoreActiveAccount() {
@@ -449,10 +483,10 @@ export class AccountStore {
             this.storage.setItem(STORAGE_KEYS.session, result.session);
           }
           const cached = this.findAccount(result.account.username);
-          const mergedAccount = {
+          const mergedAccount = this.ensureAccountShape({
             ...result.account,
             password: cached?.password,
-          };
+          });
           this.cacheAccount(mergedAccount);
           return mergedAccount;
         }
@@ -518,6 +552,28 @@ export class GameEngine {
     this.zoneLayers = [];
     this.worldInterval = null;
     this.supportInterval = null;
+    this.preferences = this.account.preferences ? { ...DEFAULT_PREFERENCES(), ...this.account.preferences } : DEFAULT_PREFERENCES();
+    this.hasDOM = typeof document !== 'undefined';
+    this.tabBar = this.hasDOM ? document.getElementById('window-tab-bar') : null;
+    this.minimizedWindows = new Map();
+    this.windowContainer = this.hasDOM ? document.querySelector('.game-body') : null;
+    this.guildResources = this.initializeGuildResources();
+    this.tutorialState = {
+      element: this.hasDOM ? document.getElementById('tutorial') : null,
+      text: this.hasDOM ? document.getElementById('tutorial-text') : null,
+      back: this.hasDOM ? document.getElementById('tutorial-back') : null,
+      next: this.hasDOM ? document.getElementById('tutorial-next') : null,
+      skip: this.hasDOM ? document.getElementById('tutorial-skip') : null,
+      index: 0,
+      initialized: false,
+      steps: [
+        'Willkommen im Kontrollzentrum! Oben siehst du deine aktive Gesellschaft und wichtige Aktionen.',
+        'Nutze die Weltkarte, um Minen zu platzieren. Mit dem Kartenregler passt du den Zoom direkt an.',
+        'Jedes Fenster lässt sich verschieben, skalieren oder minimieren. Minimierte Fenster landen in der Tab-Leiste.',
+        'In der Zunft-Ansicht koordinierst du Forschung, Einflusszonen und Unterstützungsanfragen.',
+        'Alle Verwaltungsansichten öffnen sich in separaten Iframes, damit du fokussiert planen kannst.',
+      ],
+    };
   }
 
   async init() {
@@ -530,8 +586,12 @@ export class GameEngine {
   }
 
   setupUI() {
+    if (!this.hasDOM) return;
     document.getElementById('player-company').textContent = `${this.account.company} — ${this.account.username}`;
-    this.bindWindowControls();
+    this.applyPreferences();
+    this.setupWindowControls();
+    this.setupWindowScaleControl();
+    this.setupTutorial();
     this.populateTradeSelector();
     this.renderResearch();
     this.updateLogistics();
@@ -601,6 +661,7 @@ export class GameEngine {
         this.multiplayer.guild = overview.guild || null;
         this.multiplayer.world = overview.world || this.multiplayer.world;
         this.guildTechSet = new Set(this.multiplayer.guild?.technologies?.map((tech) => tech.techId) || []);
+        this.guildResources = this.initializeGuildResources();
         this.account.multiplayer = this.multiplayer;
         this.renderGuildWindow();
         this.renderCommunityWindow();
@@ -626,6 +687,12 @@ export class GameEngine {
       polygon.bindTooltip(`${zone.name} • +${Math.round(zone.resourceBonus * 100)}%`);
       this.zoneLayers.push(polygon);
     });
+  }
+
+  initializeGuildResources() {
+    const base = { essence: 0, research: 0, logistics: 0 };
+    const remote = this.multiplayer.guild?.resources;
+    return remote ? { ...base, ...remote } : base;
   }
 
   setupGuildUI() {
@@ -682,6 +749,335 @@ export class GameEngine {
         this.resolveSupportRequest(supportId, action);
       }
     });
+  }
+
+  applyPreferences() {
+    if (!this.hasDOM) return;
+    const fontScale = this.preferences.fontScale || 1;
+    const windowScale = this.preferences.windowScale || 1;
+    document.documentElement.style.setProperty('--font-scale', fontScale.toFixed(2));
+    document.documentElement.style.setProperty('--window-scale', windowScale.toFixed(2));
+    document.body.classList.remove('theme-void', 'theme-sunrise');
+    if (this.preferences.theme === 'void') {
+      document.body.classList.add('theme-void');
+    } else if (this.preferences.theme === 'sunrise') {
+      document.body.classList.add('theme-sunrise');
+    }
+    const slider = document.getElementById('window-scale');
+    if (slider) {
+      slider.value = Math.round(windowScale * 100);
+    }
+  }
+
+  updatePreferences(partial, persist = true) {
+    this.preferences = {
+      ...this.preferences,
+      ...partial,
+    };
+    this.account.preferences = this.preferences;
+    this.applyPreferences();
+    if (persist) {
+      this.persistState();
+    }
+  }
+
+  populateSettingsForm(form) {
+    if (!this.hasDOM || !form) return;
+    const pref = this.preferences;
+    const fontScaleInput = form.querySelector('[name="fontScale"]');
+    if (fontScaleInput) {
+      fontScaleInput.value = Math.round((pref.fontScale || 1) * 100);
+    }
+    const themeSelect = form.querySelector('[name="theme"]');
+    if (themeSelect) {
+      themeSelect.value = pref.theme || 'default';
+    }
+    const autoTrade = form.querySelector('[name="autoTrade"]');
+    if (autoTrade) {
+      autoTrade.checked = !!pref.autoTrade;
+    }
+    const weather = form.querySelector('[name="experimentalWeather"]');
+    if (weather) {
+      weather.checked = !!pref.experimentalWeather;
+    }
+    const notifyGuild = form.querySelector('[name="notifyGuild"]');
+    if (notifyGuild) {
+      notifyGuild.checked = pref.notifyGuild !== false;
+    }
+  }
+
+  applySettingsForm(formData) {
+    const fontScale = Number(formData.get('fontScale') || 100) / 100;
+    const theme = formData.get('theme') || 'default';
+    const autoTrade = formData.get('autoTrade') === 'on';
+    const experimentalWeather = formData.get('experimentalWeather') === 'on';
+    const notifyGuild = formData.get('notifyGuild') !== null;
+    this.updatePreferences({ fontScale, theme, autoTrade, experimentalWeather, notifyGuild });
+    this.toast.show('Einstellungen aktualisiert.');
+    if (experimentalWeather) {
+      this.toast.show('Experimentelle Wettereffekte aktiviert. Achte auf dynamische Modifikatoren!');
+    }
+  }
+
+  setupWindowScaleControl() {
+    if (!this.hasDOM) return;
+    const slider = document.getElementById('window-scale');
+    if (!slider) return;
+    slider.addEventListener('input', (event) => {
+      const scale = Number(event.target.value) / 100;
+      this.updatePreferences({ windowScale: scale }, false);
+      document.documentElement.style.setProperty('--window-scale', scale.toFixed(2));
+    });
+  }
+
+  setupTutorial() {
+    if (!this.hasDOM) return;
+    const tutorial = this.tutorialState;
+    if (!tutorial.element || !tutorial.text || !tutorial.next || !tutorial.back || !tutorial.skip) return;
+    const render = () => {
+      tutorial.text.textContent = tutorial.steps[tutorial.index];
+      tutorial.back.disabled = tutorial.index === 0;
+      tutorial.next.textContent = tutorial.index === tutorial.steps.length - 1 ? 'Abschließen' : 'Weiter';
+    };
+    tutorial.render = render;
+    if (!tutorial.initialized) {
+      tutorial.back.addEventListener('click', () => {
+        tutorial.index = Math.max(0, tutorial.index - 1);
+        tutorial.render();
+      });
+      tutorial.next.addEventListener('click', () => {
+        if (tutorial.index >= tutorial.steps.length - 1) {
+          this.completeTutorial(false);
+          return;
+        }
+        tutorial.index += 1;
+        tutorial.render();
+      });
+      tutorial.skip.addEventListener('click', () => {
+        if (window.confirm('Tutorial wirklich überspringen?')) {
+          this.completeTutorial(true);
+        }
+      });
+      tutorial.initialized = true;
+    }
+    tutorial.render();
+    if (!this.account.tutorialCompleted) {
+      tutorial.element.classList.remove('hidden');
+      tutorial.element.setAttribute('aria-hidden', 'false');
+    } else {
+      tutorial.element.classList.add('hidden');
+      tutorial.element.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  completeTutorial(skipped) {
+    if (this.tutorialState.element) {
+      this.tutorialState.element.classList.add('hidden');
+      this.tutorialState.element.setAttribute('aria-hidden', 'true');
+    }
+    this.account.tutorialCompleted = true;
+    this.account.tutorialSkipped = skipped;
+    this.persistState();
+    if (skipped) {
+      this.toast.show('Tutorial übersprungen. Du kannst es in den Einstellungen erneut starten.');
+    } else {
+      this.toast.show('Tutorial abgeschlossen – viel Erfolg!');
+    }
+  }
+
+  restartTutorial() {
+    const tutorial = this.tutorialState;
+    if (!tutorial.element) return;
+    tutorial.index = 0;
+    tutorial.element.classList.remove('hidden');
+    tutorial.element.setAttribute('aria-hidden', 'false');
+    this.account.tutorialCompleted = false;
+    this.account.tutorialSkipped = false;
+    this.persistState();
+    tutorial.render?.();
+  }
+
+  setupWindowControls() {
+    if (!this.hasDOM) return;
+    const container = this.windowContainer;
+    if (!container) return;
+    document.querySelectorAll('.ui-window').forEach((windowEl) => {
+      const id = windowEl.id || generateId();
+      windowEl.dataset.windowId = id;
+      const actions = windowEl.querySelector('.window-actions');
+      if (actions) {
+        actions.innerHTML = '';
+        const minimize = this.createWindowAction('–', 'Minimieren');
+        const expand = this.createWindowAction('▢', 'Maximieren');
+        actions.append(minimize, expand);
+        minimize.addEventListener('click', () => this.minimizeWindow(windowEl));
+        expand.addEventListener('click', () => this.toggleWindowExpand(windowEl));
+      }
+      if (!windowEl.querySelector('.window-resize-handle')) {
+        const handle = document.createElement('div');
+        handle.className = 'window-resize-handle';
+        windowEl.appendChild(handle);
+        this.enableResizing(windowEl, handle);
+      }
+      this.enableDragging(windowEl, container);
+    });
+  }
+
+  createWindowAction(symbol, label) {
+    const button = document.createElement('button');
+    button.className = 'window-action';
+    button.type = 'button';
+    button.setAttribute('aria-label', label);
+    button.textContent = symbol;
+    return button;
+  }
+
+  enableDragging(windowEl, container) {
+    const header = windowEl.querySelector('.window-header');
+    if (!header) return;
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+    let pointerId = null;
+
+    const onPointerMove = (event) => {
+      if (!dragging) return;
+      const bounds = container.getBoundingClientRect();
+      const width = windowEl.offsetWidth;
+      const height = windowEl.offsetHeight;
+      const maxX = bounds.width - width - 12;
+      const maxY = bounds.height - height - 12;
+      const targetX = event.clientX - offsetX - bounds.left;
+      const targetY = event.clientY - offsetY - bounds.top;
+      windowEl.style.position = 'absolute';
+      windowEl.style.left = `${Math.max(12, Math.min(targetX, maxX))}px`;
+      windowEl.style.top = `${Math.max(12, Math.min(targetY, maxY))}px`;
+      windowEl.style.width = `${width}px`;
+    };
+
+    header.addEventListener('pointerdown', (event) => {
+      if (event.target.closest('.window-action')) return;
+      if (window.innerWidth < 1024) return;
+      dragging = true;
+      pointerId = event.pointerId;
+      const rect = windowEl.getBoundingClientRect();
+      const bounds = container.getBoundingClientRect();
+      offsetX = event.clientX - rect.left;
+      offsetY = event.clientY - rect.top;
+      header.setPointerCapture(pointerId);
+      windowEl.style.position = 'absolute';
+      windowEl.style.left = `${rect.left - bounds.left}px`;
+      windowEl.style.top = `${rect.top - bounds.top}px`;
+      windowEl.style.width = `${rect.width}px`;
+      windowEl.style.zIndex = '70';
+      windowEl.classList.add('dragging');
+    });
+
+    header.addEventListener('pointermove', onPointerMove);
+
+    const stopDragging = () => {
+      if (!dragging) return;
+      dragging = false;
+      windowEl.classList.remove('dragging');
+      if (pointerId !== null) {
+        try {
+          header.releasePointerCapture(pointerId);
+        } catch (err) {
+          /* noop */
+        }
+      }
+      windowEl.style.zIndex = '';
+      pointerId = null;
+    };
+
+    header.addEventListener('pointerup', stopDragging);
+    header.addEventListener('pointercancel', stopDragging);
+  }
+
+  enableResizing(windowEl, handle) {
+    let resizing = false;
+    let pointerId = null;
+    let startWidth = 0;
+    let startHeight = 0;
+    let startX = 0;
+    let startY = 0;
+
+    const onPointerMove = (event) => {
+      if (!resizing) return;
+      const deltaX = event.clientX - startX;
+      const deltaY = event.clientY - startY;
+      const width = Math.max(240, startWidth + deltaX);
+      const height = Math.max(200, startHeight + deltaY);
+      windowEl.style.width = `${width}px`;
+      windowEl.style.height = `${height}px`;
+    };
+
+    handle.addEventListener('pointerdown', (event) => {
+      resizing = true;
+      pointerId = event.pointerId;
+      startWidth = windowEl.offsetWidth;
+      startHeight = windowEl.offsetHeight;
+      startX = event.clientX;
+      startY = event.clientY;
+      handle.setPointerCapture(pointerId);
+      event.stopPropagation();
+    });
+
+    handle.addEventListener('pointermove', onPointerMove);
+
+    const stopResizing = () => {
+      if (!resizing) return;
+      resizing = false;
+      if (pointerId !== null) {
+        try {
+          handle.releasePointerCapture(pointerId);
+        } catch (err) {
+          /* noop */
+        }
+      }
+      pointerId = null;
+    };
+
+    handle.addEventListener('pointerup', stopResizing);
+    handle.addEventListener('pointercancel', stopResizing);
+  }
+
+  minimizeWindow(windowEl) {
+    const id = windowEl.dataset.windowId;
+    if (!id || this.minimizedWindows.has(id)) return;
+    windowEl.classList.add('minimized');
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.textContent = windowEl.querySelector('h2')?.textContent || id;
+    tab.dataset.windowId = id;
+    tab.addEventListener('click', () => this.restoreWindow(id));
+    this.tabBar?.appendChild(tab);
+    this.minimizedWindows.set(id, { element: windowEl, tab });
+  }
+
+  restoreWindow(id) {
+    const entry = this.minimizedWindows.get(id);
+    if (!entry) return;
+    entry.element.classList.remove('minimized');
+    if (entry.tab.parentElement) {
+      entry.tab.parentElement.removeChild(entry.tab);
+    }
+    this.minimizedWindows.delete(id);
+  }
+
+  toggleWindowExpand(windowEl) {
+    const expanded = windowEl.classList.toggle('expanded');
+    if (!expanded) {
+      windowEl.style.width = '';
+      windowEl.style.height = '';
+    }
+  }
+
+  persistState() {
+    this.account.state = this.state;
+    this.account.preferences = this.preferences;
+    this.account.multiplayer = this.multiplayer;
+    this.accountStore.updateAccount(this.account);
   }
 
   toggleGuildPanels(panel) {
@@ -762,6 +1158,7 @@ export class GameEngine {
       this.drawGuildZones();
       this.toast.show('Zunft gegründet!');
       this.scheduleSupportPolling();
+      this.persistState();
     } catch (error) {
       console.warn('Zunft konnte nicht erstellt werden', error);
       this.toast.show('Serverfehler beim Erstellen der Zunft.');
@@ -786,6 +1183,7 @@ export class GameEngine {
       this.drawGuildZones();
       this.toast.show('Zunft beigetreten!');
       this.scheduleSupportPolling();
+      this.persistState();
     } catch (error) {
       console.warn('Beitritt fehlgeschlagen', error);
       this.toast.show('Serverfehler beim Beitritt.');
@@ -806,6 +1204,7 @@ export class GameEngine {
       this.renderGuildWindow();
       this.toast.show('Zunft verlassen.');
       this.scheduleSupportPolling();
+      this.persistState();
     } catch (error) {
       console.warn('Zunft konnte nicht verlassen werden', error);
       this.toast.show('Serverfehler beim Verlassen der Zunft.');
@@ -834,6 +1233,7 @@ export class GameEngine {
       this.toast.show(`${tech.name} für deine Zunft freigeschaltet!`);
       this.renderGuildWindow();
       this.render();
+      this.persistState();
     } catch (error) {
       console.warn('Zunft-Technologie konnte nicht geladen werden', error);
       this.toast.show('Serverfehler beim Freischalten der Technologie.');
@@ -867,6 +1267,7 @@ export class GameEngine {
       this.drawGuildZones();
       this.renderGuildWindow();
       this.toast.show('Neue Zunft-Zone markiert!');
+      this.persistState();
     } catch (error) {
       console.warn('Zone konnte nicht registriert werden', error);
       this.toast.show('Serverfehler beim Registrieren der Zone.');
@@ -894,6 +1295,7 @@ export class GameEngine {
       event.target.reset();
       this.renderGuildWindow();
       this.toast.show('Unterstützung angefordert.');
+      this.persistState();
     } catch (error) {
       console.warn('Unterstützung konnte nicht angefragt werden', error);
       this.toast.show('Serverfehler beim Senden der Anfrage.');
@@ -914,6 +1316,7 @@ export class GameEngine {
       }
       await this.refreshMultiplayer();
       this.toast.show('Anfrage aktualisiert.');
+      this.persistState();
     } catch (error) {
       console.warn('Unterstützung konnte nicht aktualisiert werden', error);
       this.toast.show('Serverfehler beim Aktualisieren der Anfrage.');
@@ -921,6 +1324,7 @@ export class GameEngine {
   }
 
   populateZoneMineSelector() {
+    if (!this.hasDOM) return;
     const select = document.getElementById('zone-mine-select');
     if (!select) return;
     const current = select.value;
@@ -944,6 +1348,7 @@ export class GameEngine {
   }
 
   renderGuildWindow() {
+    if (!this.hasDOM) return;
     if (!this.guildPanels) return;
     const guild = this.multiplayer.guild;
     const activePanel = Object.entries(this.guildPanels).find(([, element]) =>
@@ -1052,9 +1457,26 @@ export class GameEngine {
         });
       }
     }
+
+    const resourceLedger = document.getElementById('guild-resource-ledger');
+    if (resourceLedger) {
+      resourceLedger.innerHTML = '';
+      const entries = [
+        { key: 'essence', label: 'Aether-Essenz' },
+        { key: 'research', label: 'Forschungsfonds' },
+        { key: 'logistics', label: 'Logistik-Kontingent' },
+      ];
+      entries.forEach(({ key, label }) => {
+        const value = this.guildResources[key] || 0;
+        const item = document.createElement('li');
+        item.innerHTML = `<strong>${label}</strong><small>${value.toFixed(1)} Einheiten</small>`;
+        resourceLedger.appendChild(item);
+      });
+    }
   }
 
   renderCommunityWindow() {
+    if (!this.hasDOM) return;
     const eventList = document.getElementById('world-events');
     if (eventList) {
       eventList.innerHTML = '';
@@ -1093,59 +1515,8 @@ export class GameEngine {
     }
   }
 
-  bindWindowControls() {
-    const container = document.querySelector('.game-body');
-    document.querySelectorAll('.ui-window').forEach((windowEl) => {
-      const header = windowEl.querySelector('.window-header');
-      const body = windowEl.querySelector('.window-body');
-      const toggle = windowEl.querySelector('.window-minimize');
-      if (toggle && body) {
-        toggle.addEventListener('click', () => {
-          body.classList.toggle('minimized');
-        });
-      }
-
-      let isDragging = false;
-      let offsetX = 0;
-      let offsetY = 0;
-
-      const onMouseMove = (event) => {
-        if (!isDragging) return;
-        const bounds = container.getBoundingClientRect();
-        const targetX = event.clientX - offsetX - bounds.left;
-        const targetY = event.clientY - offsetY - bounds.top;
-        const maxX = bounds.width - windowEl.offsetWidth - 12;
-        const maxY = bounds.height - windowEl.offsetHeight - 12;
-        windowEl.style.left = `${Math.max(12, Math.min(targetX, maxX))}px`;
-        windowEl.style.top = `${Math.max(12, Math.min(targetY, maxY))}px`;
-      };
-
-      header.addEventListener('mousedown', (event) => {
-        if (window.innerWidth < 1024) return;
-        isDragging = true;
-        const rect = windowEl.getBoundingClientRect();
-        const bounds = container.getBoundingClientRect();
-        offsetX = event.clientX - rect.left;
-        offsetY = event.clientY - rect.top;
-        windowEl.style.position = 'absolute';
-        windowEl.style.width = `${rect.width}px`;
-        windowEl.style.left = `${rect.left - bounds.left}px`;
-        windowEl.style.top = `${rect.top - bounds.top}px`;
-        windowEl.style.zIndex = '60';
-        windowEl.classList.add('dragging');
-        window.addEventListener('mousemove', onMouseMove);
-      });
-
-      window.addEventListener('mouseup', () => {
-        isDragging = false;
-        window.removeEventListener('mousemove', onMouseMove);
-        windowEl.classList.remove('dragging');
-        windowEl.style.zIndex = '';
-      });
-    });
-  }
-
   setupMap() {
+    if (!this.hasDOM) return;
     this.map = L.map('map', {
       zoomControl: false,
       minZoom: 2,
@@ -1159,6 +1530,20 @@ export class GameEngine {
     L.control.zoom({ position: 'topright' }).addTo(this.map);
 
     this.map.on('click', (event) => this.openMineModal(event.latlng));
+
+    const mapScale = document.getElementById('map-scale');
+    if (mapScale) {
+      mapScale.value = `${this.map.getZoom()}`;
+      mapScale.addEventListener('input', (event) => {
+        const zoom = Number(event.target.value);
+        if (!Number.isNaN(zoom)) {
+          this.map.setZoom(zoom);
+        }
+      });
+      this.map.on('zoomend', () => {
+        mapScale.value = `${this.map.getZoom()}`;
+      });
+    }
   }
 
   restoreMines() {
@@ -1194,6 +1579,7 @@ export class GameEngine {
     this.produceResources(minutesToAdvance);
     this.generateResearch(minutesToAdvance);
     this.render();
+    this.persistState();
   }
 
   advanceTime(minutes) {
@@ -1202,8 +1588,7 @@ export class GameEngine {
       this.state.minuteOfDay -= 1440;
       this.state.day += 1;
       this.toast.show(`Neuer Tag ${this.state.day}! Deine Crews sind motiviert.`);
-      this.account.state = this.state;
-      this.accountStore.updateAccount(this.account);
+      this.persistState();
     }
   }
 
@@ -1214,6 +1599,10 @@ export class GameEngine {
     let adjusted = dayMultiplier + stabilityBonus * 0.2;
     if (this.guildTechSet.has('night_ops')) {
       adjusted = Math.max(adjusted, 0.8);
+    }
+    if (this.preferences.experimentalWeather) {
+      const stormFactor = Math.sin(Date.now() / 120000) * 0.1;
+      adjusted += stormFactor;
     }
     return Math.max(0.4, Math.min(1.35, adjusted));
   }
@@ -1240,6 +1629,13 @@ export class GameEngine {
         dayMultiplier *
         minuteFactor;
       output *= this.getGuildProductionModifier(mine);
+      if (this.multiplayer.guild) {
+        const essenceGain = output * 0.12;
+        this.guildResources.essence += essenceGain;
+        this.guildResources.research += essenceGain * 0.35;
+        this.guildResources.logistics += mine.logisticsLevel * 0.05;
+        this.multiplayer.guild.resources = { ...this.guildResources };
+      }
       mine.storage += output;
       const capacity = (mine.baseStorage || 320) * storageBonus;
       if (mine.storage > capacity) {
@@ -1262,6 +1658,18 @@ export class GameEngine {
       acc[key] = value / minuteFactor;
       return acc;
     }, {});
+  }
+
+  estimateMineOutput(mine) {
+    const productionMultiplier = 1 + (this.state.research.bonuses.production || 0);
+    const resource = RESOURCE_DEFS[mine.resource];
+    const baseRate = resource.baseRate * productionMultiplier;
+    const workforceEfficiency = Math.min(mine.workers / resource.optimalWorkforce, 1.5);
+    const levelBonus = 1 + (mine.level - 1) * 0.2;
+    const localLogisticsBonus = 1 + (mine.logisticsLevel - 1) * 0.15;
+    const output =
+      baseRate * workforceEfficiency * levelBonus * localLogisticsBonus * this.dayPhaseMultiplier() * this.getGuildProductionModifier(mine);
+    return output;
   }
 
   getGuildProductionModifier(mine) {
@@ -1317,19 +1725,27 @@ export class GameEngine {
   }
 
   render() {
+    if (!this.hasDOM) return;
     this.updateStatusPanel();
     this.renderMineList();
     this.updateTradePrice(document.getElementById('trade-resource').value);
+    if (this.preferences.autoTrade) {
+      const amountInput = document.getElementById('trade-amount');
+      if (amountInput) {
+        const resourceKey = document.getElementById('trade-resource').value;
+        const available = this.state.resources[resourceKey] || 0;
+        amountInput.placeholder = `${available.toFixed(1)} verfügbar`;
+      }
+    }
     this.updateLogistics();
     this.renderResearch();
     this.populateZoneMineSelector();
     this.renderGuildWindow();
     this.renderCommunityWindow();
-    this.account.state = this.state;
-    this.accountStore.updateAccount(this.account);
   }
 
   updateStatusPanel() {
+    if (!this.hasDOM) return;
     const timeDisplay = document.getElementById('time-display');
     const creditsDisplay = document.getElementById('credits-display');
     const researchDisplay = document.getElementById('research-display');
@@ -1357,6 +1773,7 @@ export class GameEngine {
   }
 
   renderMineList() {
+    if (!this.hasDOM) return;
     const list = document.getElementById('mine-list');
     list.innerHTML = '';
 
@@ -1383,6 +1800,7 @@ export class GameEngine {
           <button class="btn btn-secondary" data-action="upgrade" data-id="${mine.id}">Upgrade (900 cr)</button>
           <button class="btn btn-primary" data-action="staff" data-id="${mine.id}">+10 Ingenieure (120 cr)</button>
           <button class="btn btn-outline" data-action="boost" data-id="${mine.id}">Boost 8h (Forschung 60)</button>
+          <button class="btn btn-outline" data-action="iframe" data-id="${mine.id}">Management</button>
         </div>
       `;
       card.querySelectorAll('button').forEach((btn) =>
@@ -1425,8 +1843,110 @@ export class GameEngine {
         mine.logisticsLevel = Math.max(1, mine.logisticsLevel - 1);
       }, 8 * 1000);
       this.toast.show(`Boost aktiv: ${mine.name} arbeitet mit Höchstleistung!`);
+    } else if (action === 'iframe') {
+      this.openMineManagement(mine);
+      return;
     }
     this.render();
+    this.persistState();
+  }
+
+  openMineManagement(mine) {
+    const frames = document.getElementById('mine-frames');
+    if (!frames) return;
+    let panel = frames.querySelector(`[data-frame-id="${mine.id}"]`);
+    if (panel) {
+      const iframe = panel.querySelector('iframe');
+      if (iframe) {
+        iframe.srcdoc = this.buildMineFrameContent(mine);
+      }
+      panel.classList.add('highlight');
+      window.setTimeout(() => panel.classList.remove('highlight'), 800);
+      panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    panel = document.createElement('section');
+    panel.className = 'frame-panel';
+    panel.dataset.frameId = mine.id;
+    const header = document.createElement('header');
+    const title = document.createElement('h4');
+    title.textContent = `${mine.name} – Übersicht`;
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Frame schließen');
+    close.textContent = '×';
+    close.addEventListener('click', () => {
+      panel.remove();
+    });
+    header.append(title, close);
+    const iframe = document.createElement('iframe');
+    iframe.title = `Management ${mine.name}`;
+    iframe.setAttribute('loading', 'lazy');
+    iframe.srcdoc = this.buildMineFrameContent(mine);
+    panel.append(header, iframe);
+    frames.appendChild(panel);
+  }
+
+  buildMineFrameContent(mine) {
+    if (!this.hasDOM) return '';
+    const resource = RESOURCE_DEFS[mine.resource];
+    const output = this.estimateMineOutput(mine);
+    const guildBonus = (this.getGuildProductionModifier(mine) - 1) * 100;
+    const researchBonus = (this.state.research.bonuses.production || 0) * 100;
+    const guildContribution = this.multiplayer.guild ? output * 0.12 : 0;
+    const ledgerEssence = this.guildResources.essence || 0;
+    return `<!DOCTYPE html>
+      <html lang="de">
+        <head>
+          <meta charset="utf-8" />
+          <style>
+            :root {
+              color-scheme: dark;
+              font-family: 'Montserrat', sans-serif;
+            }
+            body {
+              margin: 0;
+              padding: 1rem;
+              background: #0f172a;
+              color: #f8fafc;
+              display: grid;
+              gap: 0.75rem;
+            }
+            h2 {
+              margin: 0;
+              font-size: 1.1rem;
+            }
+            .grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+              gap: 0.75rem;
+            }
+            .stat {
+              padding: 0.75rem;
+              border-radius: 0.75rem;
+              background: rgba(15, 23, 42, 0.75);
+              border: 1px solid rgba(148, 163, 184, 0.25);
+            }
+            .stat span {
+              display: block;
+              font-size: 0.75rem;
+              color: #cbd5f5;
+            }
+          </style>
+        </head>
+        <body>
+          <h2>${mine.name} – ${resource.name}</h2>
+          <div class="grid">
+            <div class="stat"><strong>${output.toFixed(1)} t/min</strong><span>Aktuelle Förderrate</span></div>
+            <div class="stat"><strong>${mine.workers}</strong><span>Ingenieure</span></div>
+            <div class="stat"><strong>${mine.level}</strong><span>Minenstufe</span></div>
+            <div class="stat"><strong>${(guildBonus).toFixed(1)}%</strong><span>Zunft-Bonus</span></div>
+            <div class="stat"><strong>${researchBonus.toFixed(1)}%</strong><span>Forschungsbonus</span></div>
+            <div class="stat"><strong>${guildContribution.toFixed(1)} t</strong><span>Zunft-Pool Beitrag</span></div>
+            <div class="stat"><strong>${ledgerEssence.toFixed(1)}</strong><span>Zunft-Essenz gesamt</span></div>
+          </div>
+        </body>
+      </html>`;
   }
 
   populateTradeSelector() {
@@ -1454,6 +1974,7 @@ export class GameEngine {
   }
 
   handleTrade() {
+    if (!this.hasDOM) return;
     const resourceKey = document.getElementById('trade-resource').value;
     const amountInput = document.getElementById('trade-amount');
     const desiredAmount = Number(amountInput.value);
@@ -1478,6 +1999,7 @@ export class GameEngine {
     this.toast.show(`Verkauft: ${sellable.toFixed(1)}t ${RESOURCE_DEFS[resourceKey].name} für ${earnings.toFixed(0)} Credits.`);
     amountInput.value = '0';
     this.render();
+    this.persistState();
   }
 
   upgradeLogistics() {
@@ -1492,9 +2014,11 @@ export class GameEngine {
     this.state.logistics.capacity += 30 + bonus;
     this.toast.show(`Logistik erweitert! Kapazität beträgt nun ${this.state.logistics.capacity.toFixed(0)} t/min.`);
     this.render();
+    this.persistState();
   }
 
   renderResearch() {
+    if (!this.hasDOM) return;
     const list = document.getElementById('research-list');
     list.innerHTML = '';
     RESEARCH_DEFS.forEach((research) => {
@@ -1534,15 +2058,18 @@ export class GameEngine {
     this.state.research.bonuses[research.bonusType] += research.bonusValue;
     this.toast.show(`${research.name} freigeschaltet!`);
     this.render();
+    this.persistState();
   }
 
   updateLogistics() {
+    if (!this.hasDOM) return;
     const element = document.getElementById('logistics-capacity');
     const effective = this.state.logistics.capacity * (1 + (this.state.research.bonuses.logistics || 0));
     element.textContent = `${effective.toFixed(0)}`;
   }
 
   openMineModal(latlng) {
+    if (!this.hasDOM) return;
     this.pendingLocation = latlng;
     const modal = document.getElementById('mine-modal');
     const locationText = `${latlng.lat.toFixed(2)}°, ${latlng.lng.toFixed(2)}°`;
@@ -1552,6 +2079,7 @@ export class GameEngine {
   }
 
   toggleMineModal(show) {
+    if (!this.hasDOM) return;
     const modal = document.getElementById('mine-modal');
     modal.classList.toggle('show', show);
     modal.setAttribute('aria-hidden', show ? 'false' : 'true');
@@ -1562,6 +2090,7 @@ export class GameEngine {
   }
 
   createMine(event) {
+    if (!this.hasDOM) return;
     event.preventDefault();
     if (!this.pendingLocation) {
       this.toast.show('Kein Standort ausgewählt.');
@@ -1594,6 +2123,7 @@ export class GameEngine {
     this.toast.show(`${mine.name} wurde erfolgreich eröffnet.`);
     this.toggleMineModal(false);
     this.render();
+    this.persistState();
   }
 
   addMineMarker(mine) {
@@ -1618,12 +2148,6 @@ export class GameEngine {
     this.mines.set(mine.id, marker);
   }
 
-  async saveState() {
-    this.account.state = this.state;
-    this.accountStore.updateAccount(this.account);
-    await this.accountStore.flush();
-    this.toast.show('Spielstand gespeichert.');
-  }
 }
 
 export class App {
@@ -1647,14 +2171,15 @@ export class App {
     const openLogin = document.getElementById('open-login');
     const openRegister = document.getElementById('open-register');
     const closeModal = document.getElementById('close-modal');
-    const tabs = document.querySelectorAll('.tab-button');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
+    const surfaces = document.querySelectorAll('.auth-surface');
+    const surfaceToggles = document.querySelectorAll('.auth-toggle [data-switch]');
 
-    const openModal = (defaultTab = 'login-form') => {
+    const openModal = (defaultSurface = 'login') => {
       modal.classList.add('show');
       modal.setAttribute('aria-hidden', 'false');
-      this.switchTab(defaultTab);
+      this.switchSurface(defaultSurface);
     };
 
     const close = () => {
@@ -1666,21 +2191,25 @@ export class App {
       document.querySelector('[data-role="register"]').textContent = '';
     };
 
-    openLogin.addEventListener('click', () => openModal('login-form'));
-    openRegister.addEventListener('click', () => openModal('register-form'));
-    document.getElementById('open-game').addEventListener('click', () => openModal('login-form'));
+    openLogin.addEventListener('click', () => openModal('login'));
+    openRegister.addEventListener('click', () => openModal('register'));
+    document.getElementById('open-game').addEventListener('click', () => openModal('login'));
     closeModal.addEventListener('click', close);
     modal.addEventListener('click', (event) => {
       if (event.target === modal) close();
     });
 
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        this.switchTab(tab.dataset.target);
+    surfaceToggles.forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.switch;
+        this.switchSurface(target);
       });
     });
-    
-    
+
+    surfaces.forEach((surface) => {
+      surface.setAttribute('aria-hidden', surface.classList.contains('active') ? 'false' : 'true');
+    });
+
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const formData = new FormData(loginForm);
@@ -1714,24 +2243,70 @@ export class App {
       } else {
         message.textContent = 'Account erstellt! Du kannst dich nun anmelden.';
         registerForm.reset();
+        this.switchSurface('login');
       }
     });
   }
 
-  switchTab(targetId) {
-    document.querySelectorAll('.tab-button').forEach((tab) => {
-      tab.classList.toggle('active', tab.dataset.target === targetId);
+  switchSurface(target) {
+    document.querySelectorAll('.auth-surface').forEach((surface) => {
+      const isActive = surface.dataset.surface === target;
+      surface.classList.toggle('active', isActive);
+      surface.setAttribute('aria-hidden', isActive ? 'false' : 'true');
     });
-    document.querySelectorAll('.auth-form').forEach((form) => {
-      form.classList.toggle('active', form.id === targetId);
+    document.querySelectorAll('.auth-toggle [data-switch]').forEach((button) => {
+      button.classList.toggle('active', button.dataset.switch === target);
     });
   }
 
   setupGameControls() {
-    document.getElementById('save-game').addEventListener('click', async () => {
-      await this.game?.saveState();
-    });
     document.getElementById('logout').addEventListener('click', () => this.logout());
+    const settingsButton = document.getElementById('settings-button');
+    const helpButton = document.getElementById('help-button');
+    const settingsModal = document.getElementById('settings-modal');
+    const helpModal = document.getElementById('help-modal');
+    const settingsForm = document.getElementById('settings-form');
+
+    const openModal = (element) => {
+      if (!element) return;
+      element.classList.add('show');
+      element.setAttribute('aria-hidden', 'false');
+    };
+
+    const closeModal = (element) => {
+      if (!element) return;
+      element.classList.remove('show');
+      element.setAttribute('aria-hidden', 'true');
+    };
+
+    settingsButton?.addEventListener('click', () => {
+      if (!this.game) return;
+      this.game.populateSettingsForm(settingsForm);
+      openModal(settingsModal);
+    });
+
+    helpButton?.addEventListener('click', () => openModal(helpModal));
+
+    settingsForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!this.game) return;
+      const formData = new FormData(settingsForm);
+      this.game.applySettingsForm(formData);
+      closeModal(settingsModal);
+    });
+
+    document.querySelectorAll('[data-close="settings"]').forEach((btn) =>
+      btn.addEventListener('click', () => closeModal(settingsModal))
+    );
+    document.querySelectorAll('[data-close="help"]').forEach((btn) =>
+      btn.addEventListener('click', () => closeModal(helpModal))
+    );
+    const tutorialReset = document.getElementById('tutorial-reset');
+    tutorialReset?.addEventListener('click', () => {
+      if (!this.game) return;
+      closeModal(settingsModal);
+      this.game.restartTutorial();
+    });
   }
 
   async tryAutoLogin() {
@@ -1762,6 +2337,11 @@ export class App {
     document.getElementById('game').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     document.getElementById('player-company').textContent = '';
+    const tutorial = document.getElementById('tutorial');
+    if (tutorial) {
+      tutorial.classList.add('hidden');
+      tutorial.setAttribute('aria-hidden', 'true');
+    }
     this.toast.show('Erfolgreich abgemeldet.');
   }
 }
