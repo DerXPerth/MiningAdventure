@@ -1118,6 +1118,7 @@ class GameEngine {
         const maxY = bounds.height - windowEl.offsetHeight - 12;
         windowEl.style.left = `${Math.max(12, Math.min(targetX, maxX))}px`;
         windowEl.style.top = `${Math.max(12, Math.min(targetY, maxY))}px`;
+      };
 
       header.addEventListener('mousedown', (event) => {
         if (window.innerWidth < 1024) return;
