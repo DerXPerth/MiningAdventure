@@ -1118,7 +1118,6 @@ class GameEngine {
         const maxY = bounds.height - windowEl.offsetHeight - 12;
         windowEl.style.left = `${Math.max(12, Math.min(targetX, maxX))}px`;
         windowEl.style.top = `${Math.max(12, Math.min(targetY, maxY))}px`;
-      };
 
       header.addEventListener('mousedown', (event) => {
         if (window.innerWidth < 1024) return;
@@ -1249,6 +1248,7 @@ class GameEngine {
     });
 
     let remainingCapacity = this.state.logistics.capacity * globalLogisticsBonus * minuteFactor * this.getLogisticsMultiplier();
+
     this.state.mines.forEach((mine) => {
       if (remainingCapacity <= 0) return;
       const transferable = Math.min(mine.storage, remainingCapacity);
@@ -1678,7 +1678,8 @@ class App {
         this.switchTab(tab.dataset.target);
       });
     });
-
+    
+    
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const formData = new FormData(loginForm);

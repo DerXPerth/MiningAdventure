@@ -5,12 +5,13 @@ StrataSphere ist ein vollständig im Browser laufendes Management-Spiel rund um 
 ## Features
 
 - **Landingpage & Authentifizierung** – Modernes, responsives Design mit Login- und Registrierungsdialog samt serverseitiger Validierung und Sessions.
-- **Globale Spielwelt** – Interaktive OpenStreetMap-Karte (Leaflet) zum Platzieren neuer Minen überall auf der Welt.
+- **Globale Spielwelt** – Interaktive OpenStreetMap-Karte (Leaflet) zum Platzieren nehttps://github.com/DerXPerth/MiningAdventure/pull/3/conflict?name=assets%252Fjs%252Fmain.js&base_oid=375bdb7e4f6d0401f65a6fa13adcbd14ace1d814&head_oid=477df36069e494bb43f110e77cac0a5b06fc6488uer Minen überall auf der Welt.
 - **Wirtschaftssimulation** – Ressourcenproduktion mit Tag-/Nachtzyklus, Personalverwaltung, Logistik- und Forschungsmechaniken.
 - **Forschung & Upgrades** – Mehrstufige Technologien, Logistikerweiterungen, Boosts und Upgrades für einzelne Minen.
 - **Persistenter Spielstand** – Automatische Synchronisation zwischen Browser, SQLite-Datenbank und optionalem Offline-Fallback.
 - **Mehrspieler-Zünfte** – Gründe Gilden, beanspruche Einflusszonen auf der Karte, forsche gemeinsam an Zunft-Technologien und koordiniere Unterstützungsanfragen.
 - **Live-Weltereignisse** – Globale Events verändern Märkte und Regionen, Leaderboards zeigen die aktivsten Zünfte an.
+
 
 ## Schnellstart
 
