@@ -5,10 +5,13 @@ StrataSphere ist ein vollständig im Browser laufendes Management-Spiel rund um 
 ## Features
 
 - **Landingpage & Authentifizierung** – Modernes, responsives Design mit Login- und Registrierungsdialog samt serverseitiger Validierung und Sessions.
-- **Globale Spielwelt** – Interaktive OpenStreetMap-Karte (Leaflet) zum Platzieren neuer Minen überall auf der Welt.
+- **Globale Spielwelt** – Interaktive OpenStreetMap-Karte (Leaflet) zum Platzieren nehttps://github.com/DerXPerth/MiningAdventure/pull/3/conflict?name=assets%252Fjs%252Fmain.js&base_oid=375bdb7e4f6d0401f65a6fa13adcbd14ace1d814&head_oid=477df36069e494bb43f110e77cac0a5b06fc6488uer Minen überall auf der Welt.
 - **Wirtschaftssimulation** – Ressourcenproduktion mit Tag-/Nachtzyklus, Personalverwaltung, Logistik- und Forschungsmechaniken.
 - **Forschung & Upgrades** – Mehrstufige Technologien, Logistikerweiterungen, Boosts und Upgrades für einzelne Minen.
 - **Persistenter Spielstand** – Automatische Synchronisation zwischen Browser, SQLite-Datenbank und optionalem Offline-Fallback.
+- **Mehrspieler-Zünfte** – Gründe Gilden, beanspruche Einflusszonen auf der Karte, forsche gemeinsam an Zunft-Technologien und koordiniere Unterstützungsanfragen.
+- **Live-Weltereignisse** – Globale Events verändern Märkte und Regionen, Leaderboards zeigen die aktivsten Zünfte an.
+
 
 ## Schnellstart
 
@@ -21,12 +24,25 @@ StrataSphere ist ein vollständig im Browser laufendes Management-Spiel rund um 
 
 > **Hinweis:** Aufgrund von Browser-Sicherheitsrichtlinien sollte das Spiel nicht direkt als `file://` geöffnet werden. Verwende einen lokalen Webserver.
 
+### Multiplayer-Synchronisation aktivieren
+
+Die erweiterten Gilden-Features setzen eine aktive Session gegen `server/api.php` voraus. Beim ersten Start legt das Backend automatisch zusätzliche Tabellen (`guilds`, `guild_members`, `guild_zones`, `guild_technologies`, `guild_support`, `guild_events`, `world_events`) an. Über die Spieloberfläche kannst du:
+
+- eigene Zünfte gründen oder bestehenden beitreten,
+- Einflusszonen rund um deine Minen beanspruchen (erhöht die Produktion vor Ort),
+- Zunft-Technologien mit Forschungspunkten freischalten,
+- Unterstützungsanfragen der Mitglieder koordinieren und den Status verwalten,
+- globale Weltereignisse und Ranglisten verfolgen.
+
+Ohne laufendes Backend fällt die Anwendung automatisch auf den Solo-Modus zurück; Gilden-spezifische Panels werden dann ausgeblendet.
+
 ## Technologie-Stack
 
 - **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES Modules)
 - **Karte:** Leaflet 1.9.x mit OpenStreetMap-Tiles
 - **Persistenz:** PHP 8.1 API mit SQLite-Datenbank, abgesichert durch Sessions und serverseitige Validierung
 - **Offline-Fallback:** Browser `localStorage` hält einen letzten Stand vor, falls der Server nicht erreichbar ist
+- **Mehrspieler-Layer:** REST-Endpunkte für Gildenverwaltung, Einflusszonen, Unterstützungs-Queues und globale Events
 
 ## Assets
 
@@ -35,7 +51,7 @@ Alle Grafiken sind Vektor-SVGs, die direkt im Repository liegen. Weitere Bildres
 ## Tests & Monitoring
 
 - Frontend: Manuelles Durchklicken der Landingpage, Auth-Dialoge und Map-Interaktionen.
-- Backend: Die API validiert Eingaben serverseitig, Sessions laufen automatisch nach 12 Stunden ab.
+- Backend: Die API validiert Eingaben serverseitig, Sessions laufen automatisch nach 12 Stunden ab. Gilden-Operationen prüfen Rollenrechte, erstellen Events und halten das Leaderboard aktuell.
 - Automatisierte Tests können unkompliziert ergänzt werden (z. B. PHPUnit oder Cypress), sind aber im Lernkontext optional.
 
 ## Lizenz

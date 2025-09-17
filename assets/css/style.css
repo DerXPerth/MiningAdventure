@@ -382,29 +382,32 @@ img {
   min-height: calc(100vh - 120px);
 }
 
-.ui-window {
+.hud-grid {
   position: absolute;
-  top: 2rem;
-  left: 2rem;
-  width: min(320px, 80vw);
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+  gap: 1.5rem;
+  padding: 2rem;
+  align-content: flex-start;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.hud-grid .ui-window {
+  pointer-events: auto;
+}
+
+.ui-window {
+  position: relative;
   background: var(--bg-window);
   border-radius: 1rem;
   border: 1px solid rgba(148, 163, 184, 0.35);
   box-shadow: 0 30px 60px rgba(15, 23, 42, 0.4);
   backdrop-filter: blur(18px);
   color: #f8fafc;
-}
-
-.ui-window:nth-of-type(2) {
-  left: 26rem;
-}
-
-.ui-window:nth-of-type(3) {
-  left: 50rem;
-}
-
-.ui-window:nth-of-type(4) {
-  left: 74rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .window-header {
@@ -422,6 +425,252 @@ img {
   padding: 1rem 1.25rem 1.5rem;
   max-height: 420px;
   overflow-y: auto;
+}
+
+.ui-window.dragging {
+  z-index: 50;
+  cursor: grabbing;
+}
+
+#guild-window {
+  grid-column: span 2;
+  max-width: 680px;
+}
+
+#guild-window .window-body {
+  max-height: 560px;
+}
+
+#community-window {
+  grid-column: span 2;
+  max-width: 640px;
+}
+
+#community-window .window-body {
+  max-height: 480px;
+}
+
+.guild-panel {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.guild-panel:not(.hidden) {
+  display: flex;
+}
+
+.guild-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.guild-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.guild-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.guild-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.guild-card footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.guild-form label,
+.support-form label,
+.zone-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.guild-form input,
+.support-form input,
+.zone-form input,
+.guild-form textarea,
+.support-form textarea,
+.guild-form select,
+.support-form select,
+.zone-form select {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  color: inherit;
+}
+
+.guild-form textarea,
+.support-form textarea {
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.guild-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.guild-header p {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+}
+
+.guild-meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.guild-meta-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.guild-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.guild-section {
+  flex: 1;
+  min-width: 220px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.guild-section ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guild-section li {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.guild-section li.muted {
+  opacity: 0.65;
+}
+
+#guild-window .guild-section small {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--text-muted);
+}
+
+.tech-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.tech-list li.unlocked {
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.support-form {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.support-queue {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.support-queue li {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.support-queue li p {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.support-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.community-body {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.community-body section {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.event-list,
+.leaderboard {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.event-list li,
+.leaderboard li {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.leaderboard li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .window-minimize {
@@ -519,15 +768,22 @@ img {
 }
 
 @media (max-width: 1024px) {
-  .ui-window {
+  .hud-grid {
     position: static;
-    width: auto;
-    margin: 1.5rem 1.5rem 0;
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    pointer-events: auto;
   }
 
-  .game-body {
-    display: grid;
-    grid-template-columns: 1fr;
+  .hud-grid .ui-window {
+    position: static;
+    margin: 0;
+  }
+
+  #guild-window,
+  #community-window {
+    grid-column: span 1;
+    max-width: none;
   }
 }
 

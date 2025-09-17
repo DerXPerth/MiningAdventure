@@ -199,6 +199,214 @@
       <div class="game-body">
         <div id="map"></div>
 
+        <div class="hud-grid">
+          <div class="ui-window" id="status-window">
+            <div class="window-header">
+              <h2>Status</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p><strong>Zeit:</strong> <span id="time-display"></span></p>
+              <p><strong>Credits:</strong> <span id="credits-display"></span></p>
+              <p><strong>Forschung:</strong> <span id="research-display"></span></p>
+              <div class="resource-list" id="resource-list"></div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="mine-window">
+            <div class="window-header">
+              <h2>Minen</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p>
+                Klicke auf die Weltkarte, um eine neue Mine zu platzieren. Jede Mine kann
+                Upgrades, Belegschaft und Logistik erhalten.
+              </p>
+              <div id="mine-list"></div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="logistics-window">
+            <div class="window-header">
+              <h2>Handel &amp; Logistik</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p>
+                Verkaufe Ressourcen, investiere in Frachtkapazität und optimiere deine
+                Lieferketten, um maximale Gewinne zu erzielen.
+              </p>
+              <div class="trade-panel">
+                <label>
+                  Ressource
+                  <select id="trade-resource"></select>
+                </label>
+                <label>
+                  Menge
+                  <input type="number" id="trade-amount" min="0" value="0" />
+                </label>
+                <button class="btn btn-primary" id="trade-sell">Verkaufen</button>
+                <p class="trade-price">Marktpreis: <span id="trade-price"></span></p>
+              </div>
+              <div class="logistics-upgrades">
+                <h3>Logistik-Upgrades</h3>
+                <button class="btn btn-secondary" id="upgrade-logistics">
+                  Flottenkapazität erhöhen (Kosten: 1.500 Credits)
+                </button>
+                <p>Aktuelle Kapazität: <span id="logistics-capacity"></span> t/min</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="research-window">
+            <div class="window-header">
+              <h2>Forschung</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p>Schalte Technologien frei, um Produktion und Nachhaltigkeit zu boosten.</p>
+              <div id="research-list"></div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="guild-window">
+            <div class="window-header">
+              <h2>Zunft</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <div id="guild-empty" class="guild-panel">
+                <p>Verbünde dich mit anderen Spieler:innen, um globale Synergien freizuschalten.</p>
+                <div class="panel-actions">
+                  <button class="btn btn-secondary" id="open-guild-browser">Zünfte entdecken</button>
+                  <button class="btn btn-primary" id="open-guild-create">Zunft gründen</button>
+                </div>
+              </div>
+
+              <div id="guild-browser" class="guild-panel hidden">
+                <div class="guild-toolbar">
+                  <button class="btn btn-outline" id="guild-browser-back">Zurück</button>
+                </div>
+                <div id="guild-list" class="guild-list"></div>
+              </div>
+
+              <div id="guild-create" class="guild-panel hidden">
+                <form id="guild-create-form" class="guild-form">
+                  <label>
+                    Name der Zunft
+                    <input type="text" name="name" minlength="3" maxlength="48" required />
+                  </label>
+                  <label>
+                    Motto
+                    <input type="text" name="motto" minlength="4" maxlength="120" required />
+                  </label>
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Zunft gründen</button>
+                    <button type="button" class="btn btn-outline" id="guild-create-cancel">Abbrechen</button>
+                  </div>
+                </form>
+              </div>
+
+              <div id="guild-dashboard" class="guild-panel hidden">
+                <header class="guild-header">
+                  <div>
+                    <h3 id="guild-name"></h3>
+                    <p id="guild-motto"></p>
+                  </div>
+                  <div class="guild-meta">
+                    <span>Rolle: <strong id="guild-role"></strong></span>
+                    <div class="guild-meta-actions">
+                      <button class="btn btn-secondary" id="guild-refresh">Aktualisieren</button>
+                      <button class="btn btn-outline" id="guild-leave">Verlassen</button>
+                    </div>
+                  </div>
+                </header>
+
+                <div class="guild-columns">
+                  <section class="guild-section">
+                    <h4>Mitglieder</h4>
+                    <ul id="guild-member-list"></ul>
+                  </section>
+                  <section class="guild-section">
+                    <h4>Zunft-Technologien</h4>
+                    <ul id="guild-tech-list" class="tech-list"></ul>
+                  </section>
+                </div>
+
+                <div class="guild-columns">
+                  <section class="guild-section">
+                    <h4>Zunft-Zonen</h4>
+                    <ul id="guild-zone-list"></ul>
+                    <form id="guild-zone-form" class="zone-form">
+                      <label>
+                        Mine als Zentrum
+                        <select id="zone-mine-select" name="mine"></select>
+                      </label>
+                      <label>
+                        Radius (km)
+                        <input type="number" id="zone-radius" name="radius" value="80" min="20" max="250" />
+                      </label>
+                      <button type="submit" class="btn btn-secondary">Zone beanspruchen</button>
+                    </form>
+                  </section>
+                  <section class="guild-section">
+                    <h4>Unterstützung</h4>
+                    <form id="guild-support-form" class="support-form">
+                      <label>
+                        Art der Hilfe
+                        <select name="type">
+                          <option value="Logistik">Logistik</option>
+                          <option value="Forschung">Forschung</option>
+                          <option value="Rohstoffe">Rohstoffe</option>
+                        </select>
+                      </label>
+                      <label>
+                        Umfang
+                        <input type="number" name="amount" min="0" value="60" />
+                      </label>
+                      <label>
+                        Nachricht
+                        <textarea name="note" rows="2" placeholder="Was wird benötigt?"></textarea>
+                      </label>
+                      <button type="submit" class="btn btn-primary">Unterstützung anfragen</button>
+                    </form>
+                    <ul id="guild-support-queue" class="support-queue"></ul>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="community-window">
+            <div class="window-header">
+              <h2>Welt &amp; Events</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body community-body">
+              <section>
+                <h3>Aktive Weltereignisse</h3>
+                <ul id="world-events" class="event-list"></ul>
+              </section>
+              <section>
+                <h3>Gilden-Ranking</h3>
+                <ul id="world-guilds" class="leaderboard"></ul>
+              </section>
+            </div>
+          </div>
+=======
         <div class="ui-window" id="status-window">
           <div class="window-header">
             <h2>Status</h2>
@@ -231,50 +439,7 @@
         </div>
 
         <div class="ui-window" id="logistics-window">
-          <div class="window-header">
-            <h2>Handel &amp; Logistik</h2>
-            <div class="window-actions">
-              <button class="window-minimize" aria-label="Minimieren">–</button>
-            </div>
-          </div>
-          <div class="window-body">
-            <p>
-              Verkaufe Ressourcen, investiere in Frachtkapazität und optimiere deine
-              Lieferketten, um maximale Gewinne zu erzielen.
-            </p>
-            <div class="trade-panel">
-              <label>
-                Ressource
-                <select id="trade-resource"></select>
-              </label>
-              <label>
-                Menge
-                <input type="number" id="trade-amount" min="0" value="0" />
-              </label>
-              <button class="btn btn-primary" id="trade-sell">Verkaufen</button>
-              <p class="trade-price">Marktpreis: <span id="trade-price"></span></p>
-            </div>
-            <div class="logistics-upgrades">
-              <h3>Logistik-Upgrades</h3>
-              <button class="btn btn-secondary" id="upgrade-logistics">
-                Flottenkapazität erhöhen (Kosten: 1.500 Credits)
-              </button>
-              <p>Aktuelle Kapazität: <span id="logistics-capacity"></span> t/min</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="ui-window" id="research-window">
-          <div class="window-header">
-            <h2>Forschung</h2>
-            <div class="window-actions">
-              <button class="window-minimize" aria-label="Minimieren">–</button>
-            </div>
-          </div>
-          <div class="window-body">
-            <p>Schalte Technologien frei, um Produktion und Nachhaltigkeit zu boosten.</p>
-            <div id="research-list"></div>
-          </div>
+          <div class="window-header"
         </div>
       </div>
     </div>

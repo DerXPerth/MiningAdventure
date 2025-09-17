@@ -43,6 +43,134 @@ $pdo->exec(
     )'
 );
 
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS guilds (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        motto TEXT NOT NULL,
+        founder_id INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(founder_id) REFERENCES players(id) ON DELETE CASCADE
+    )'
+);
+
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS guild_members (
+        guild_id INTEGER NOT NULL,
+        player_id INTEGER NOT NULL UNIQUE,
+        role TEXT NOT NULL,
+        joined_at TEXT NOT NULL,
+        PRIMARY KEY(guild_id, player_id),
+        FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE,
+        FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
+    )'
+);
+
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS guild_zones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        guild_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        polygon_json TEXT NOT NULL,
+        resource_bonus REAL NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE
+    )'
+);
+
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS guild_technologies (
+        guild_id INTEGER NOT NULL,
+        tech_id TEXT NOT NULL,
+        unlocked_at TEXT NOT NULL,
+        PRIMARY KEY(guild_id, tech_id),
+        FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE
+    )'
+);
+
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS guild_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        guild_id INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE
+    )'
+);
+
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS guild_support (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        guild_id INTEGER NOT NULL,
+        player_id INTEGER NOT NULL,
+        request_type TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        status TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY(guild_id) REFERENCES guilds(id) ON DELETE CASCADE,
+        FOREIGN KEY(player_id) REFERENCES players(id) ON DELETE CASCADE
+    )'
+);
+
+$pdo->exec(
+    'CREATE TABLE IF NOT EXISTS world_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        effect_json TEXT NOT NULL,
+        starts_at TEXT NOT NULL,
+        ends_at TEXT NOT NULL
+    )'
+);
+
+function ensure_world_events(\PDO $pdo): void
+{
+    $count = (int) $pdo->query('SELECT COUNT(*) FROM world_events')->fetchColumn();
+    if ($count > 0) {
+        return;
+    }
+
+    $now = now();
+    $events = [
+        [
+            'title' => 'Aurora-Schürfrechte',
+            'description' => 'Skandinavische Regierungen vergeben zusätzliche Förderlizenzen. Gilden mit Zonen nördlich von 60° erhalten +12% Förderung.',
+            'effect' => ['type' => 'regionalBoost', 'value' => 0.12, 'region' => 'Nordischer Gürtel'],
+            'duration' => '+10 days',
+        ],
+        [
+            'title' => 'Globaler Energiebedarf',
+            'description' => 'Eine Hitzeperiode sorgt weltweit für Stromengpässe. Kohle- und Uranverkäufe erzielen +18% Preis.',
+            'effect' => ['type' => 'marketTrend', 'resource' => ['coal', 'uranium'], 'value' => 0.18],
+            'duration' => '+6 days',
+        ],
+        [
+            'title' => 'UN Nachhaltigkeitsgipfel',
+            'description' => 'Gilden, die Forschungspunkte spenden, erhalten globale Reputation und Bonus auf Stabilität.',
+            'effect' => ['type' => 'researchDonation', 'value' => 0.2],
+            'duration' => '+4 days',
+        ],
+    ];
+
+    foreach ($events as $event) {
+        $startsAt = $now;
+        $endsAt = $now->modify($event['duration']);
+        $stmt = $pdo->prepare(
+            'INSERT INTO world_events(title, description, effect_json, starts_at, ends_at) VALUES(:title, :description, :effect, :starts_at, :ends_at)'
+        );
+        $stmt->execute([
+            'title' => $event['title'],
+            'description' => $event['description'],
+            'effect' => json_encode($event['effect'], JSON_THROW_ON_ERROR),
+            'starts_at' => $startsAt->format(\DateTimeInterface::ATOM),
+            'ends_at' => $endsAt->format(\DateTimeInterface::ATOM),
+        ]);
+    }
+}
+
 function initial_state(): array
 {
     return [
@@ -78,6 +206,8 @@ function now(): \DateTimeImmutable
 {
     return new \DateTimeImmutable('now');
 }
+
+ensure_world_events($pdo);
 
 function respond(array $data, int $status = 200): void
 {
