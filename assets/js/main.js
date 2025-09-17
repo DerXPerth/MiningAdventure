@@ -1,6 +1,7 @@
 const STORAGE_KEYS = {
   accounts: 'stratasphere_accounts_v1',
   active: 'stratasphere_active_v1',
+  session: 'stratasphere_session_v1',
 };
 
 const RESOURCE_DEFS = {
@@ -111,9 +112,58 @@ const generateId = () => {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
+class RemoteGateway {
+  constructor(baseUrl = 'server/api.php') {
+    this.baseUrl = baseUrl;
+  }
+
+  async request(action, payload = {}) {
+    const response = await fetch(`${this.baseUrl}?action=${encodeURIComponent(action)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(`Remote request failed: ${response.status} ${message}`);
+    }
+
+    return response.json();
+  }
+
+  register(payload) {
+    return this.request('register', payload);
+  }
+
+  login(payload) {
+    return this.request('login', payload);
+  }
+
+  restore(payload) {
+    return this.request('restore', payload);
+  }
+
+  saveState(payload) {
+    return this.request('saveState', payload);
+  }
+
+  logout(payload) {
+    return this.request('logout', payload);
+  }
+}
+
 class AccountStore {
-  constructor(storage) {
+  constructor(storage, remoteGateway) {
     this.storage = storage;
+    this.remote = remoteGateway;
+    this.session = this.storage.getItem(STORAGE_KEYS.session);
+    this.pendingSync = null;
+    this.syncTimeout = null;
+  }
+
+  hash(value) {
+    return btoa(unescape(encodeURIComponent(value)));
   }
 
   loadAccounts() {
@@ -132,11 +182,34 @@ class AccountStore {
     this.storage.setItem(STORAGE_KEYS.accounts, JSON.stringify(accounts));
   }
 
-  findAccount(username) {
-    return this.loadAccounts().find((acc) => acc.username === username);
+  cacheAccount(account) {
+    const accounts = this.loadAccounts();
+    const index = accounts.findIndex((acc) => acc.username === account.username);
+    const previous = index >= 0 ? accounts[index] : null;
+    const stored = {
+      ...(previous || {}),
+      ...account,
+    };
+    if (account.password) {
+      stored.password = account.password;
+    } else if (previous?.password) {
+      stored.password = previous.password;
+    } else {
+      delete stored.password;
+    }
+    if (index >= 0) {
+      accounts[index] = stored;
+    } else {
+      accounts.push(stored);
+    }
+    this.saveAccounts(accounts);
   }
 
-  register({ username, password, company }) {
+  findAccount(username) {
+    return this.loadAccounts().find((acc) => acc.username === username) || null;
+  }
+
+  registerLocal({ username, password, company }) {
     const accounts = this.loadAccounts();
     if (accounts.some((acc) => acc.username === username)) {
       return { success: false, message: 'Benutzername bereits vergeben.' };
@@ -155,11 +228,28 @@ class AccountStore {
     return { success: true, account };
   }
 
-  hash(value) {
-    return btoa(unescape(encodeURIComponent(value)));
+  async register(payload) {
+    if (!this.remote) {
+      return this.registerLocal(payload);
+    }
+
+    try {
+      const result = await this.remote.register(payload);
+      if (result.success && result.account) {
+        const cachedAccount = {
+          ...result.account,
+          password: this.hash(payload.password),
+        };
+        this.cacheAccount(cachedAccount);
+      }
+      return result;
+    } catch (error) {
+      console.warn('Remote Registrierung fehlgeschlagen, nutze Offline-Modus', error);
+      return this.registerLocal(payload);
+    }
   }
 
-  login({ username, password }) {
+  loginLocal({ username, password }) {
     const accounts = this.loadAccounts();
     const account = accounts.find((acc) => acc.username === username);
     if (!account) {
@@ -169,25 +259,112 @@ class AccountStore {
       return { success: false, message: 'Falsches Passwort.' };
     }
     this.storage.setItem(STORAGE_KEYS.active, username);
+    this.storage.removeItem(STORAGE_KEYS.session);
+    this.session = null;
     return { success: true, account };
   }
 
-  updateAccount(updatedAccount) {
-    const accounts = this.loadAccounts();
-    const index = accounts.findIndex((acc) => acc.username === updatedAccount.username);
-    if (index >= 0) {
-      accounts[index] = updatedAccount;
-      this.saveAccounts(accounts);
+  async login(payload) {
+    if (!this.remote) {
+      return this.loginLocal(payload);
+    }
+
+    try {
+      const result = await this.remote.login(payload);
+      if (!result.success) {
+        return result;
+      }
+
+      const { account, session } = result;
+      if (session) {
+        this.session = session;
+        this.storage.setItem(STORAGE_KEYS.session, session);
+      }
+      if (account) {
+        const cachedAccount = {
+          ...account,
+          password: this.hash(payload.password),
+        };
+        this.cacheAccount(cachedAccount);
+      }
+      this.storage.setItem(STORAGE_KEYS.active, payload.username);
+      return { success: true, account };
+    } catch (error) {
+      console.warn('Remote Login fehlgeschlagen, nutze Offline-Modus', error);
+      return this.loginLocal(payload);
     }
   }
 
-  getActiveAccount() {
-    const active = this.storage.getItem(STORAGE_KEYS.active);
-    if (!active) return null;
-    return this.findAccount(active);
+  scheduleSync(account) {
+    this.cacheAccount(account);
+    if (!this.remote || !this.session) return;
+    this.pendingSync = {
+      username: account.username,
+      state: account.state,
+    };
+    window.clearTimeout(this.syncTimeout);
+    this.syncTimeout = window.setTimeout(() => this.flush(), 600);
   }
 
-  clearActive() {
+  async flush() {
+    if (!this.pendingSync || !this.remote || !this.session) return;
+    const payload = {
+      session: this.session,
+      state: this.pendingSync.state,
+    };
+    try {
+      await this.remote.saveState(payload);
+      this.pendingSync = null;
+    } catch (error) {
+      console.warn('Konnte Spielstand nicht synchronisieren', error);
+    }
+  }
+
+  updateAccount(account) {
+    this.scheduleSync(account);
+  }
+
+  async restoreActiveAccount() {
+    const username = this.storage.getItem(STORAGE_KEYS.active);
+    if (!username) return null;
+
+    if (this.remote && this.session) {
+      try {
+        const result = await this.remote.restore({ session: this.session });
+        if (result.success && result.account) {
+          if (result.session) {
+            this.session = result.session;
+            this.storage.setItem(STORAGE_KEYS.session, result.session);
+          }
+          const cached = this.findAccount(result.account.username);
+          const mergedAccount = {
+            ...result.account,
+            password: cached?.password,
+          };
+          this.cacheAccount(mergedAccount);
+          return mergedAccount;
+        }
+      } catch (error) {
+        console.warn('Remote-Sitzung konnte nicht wiederhergestellt werden', error);
+      }
+    }
+
+    return this.findAccount(username);
+  }
+
+  async logout() {
+    if (this.session) {
+      await this.flush();
+    }
+    if (this.remote && this.session) {
+      try {
+        await this.remote.logout({ session: this.session });
+      } catch (error) {
+        console.warn('Remote Logout fehlgeschlagen', error);
+      }
+    }
+    this.session = null;
+    this.storage.removeItem(STORAGE_KEYS.session);
     this.storage.removeItem(STORAGE_KEYS.active);
   }
 }
@@ -692,16 +869,17 @@ class GameEngine {
     this.mines.set(mine.id, marker);
   }
 
-  saveState() {
+  async saveState() {
     this.account.state = this.state;
     this.accountStore.updateAccount(this.account);
+    await this.accountStore.flush();
     this.toast.show('Spielstand gespeichert.');
   }
 }
 
 class App {
   constructor() {
-    this.accountStore = new AccountStore(window.localStorage);
+    this.accountStore = new AccountStore(window.localStorage, new RemoteGateway());
     this.toast = new Toast();
     this.game = null;
     this.setupLanding();
@@ -752,17 +930,18 @@ class App {
         this.switchTab(tab.dataset.target);
       });
     });
-
-    loginForm.addEventListener('submit', (event) => {
+    
+    loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const formData = new FormData(loginForm);
-      const result = this.accountStore.login({
+      const message = document.querySelector('[data-role="login"]');
+      message.textContent = 'Prüfe Zugangsdaten …';
+      const result = await this.accountStore.login({
         username: formData.get('username'),
         password: formData.get('password'),
       });
-      const message = document.querySelector('[data-role="login"]');
       if (!result.success) {
-        message.textContent = result.message;
+        message.textContent = result.message || 'Anmeldung fehlgeschlagen.';
       } else {
         message.textContent = '';
         close();
@@ -770,17 +949,18 @@ class App {
       }
     });
 
-    registerForm.addEventListener('submit', (event) => {
+    registerForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const formData = new FormData(registerForm);
-      const result = this.accountStore.register({
+      const message = document.querySelector('[data-role="register"]');
+      message.textContent = 'Erstelle Account …';
+      const result = await this.accountStore.register({
         username: formData.get('username'),
         password: formData.get('password'),
         company: formData.get('company'),
       });
-      const message = document.querySelector('[data-role="register"]');
       if (!result.success) {
-        message.textContent = result.message;
+        message.textContent = result.message || 'Registrierung fehlgeschlagen.';
       } else {
         message.textContent = 'Account erstellt! Du kannst dich nun anmelden.';
         registerForm.reset();
@@ -798,16 +978,17 @@ class App {
   }
 
   setupGameControls() {
-    document.getElementById('save-game').addEventListener('click', () => {
-      this.game?.saveState();
+    document.getElementById('save-game').addEventListener('click', async () => {
+      await this.game?.saveState();
     });
     document.getElementById('logout').addEventListener('click', () => this.logout());
   }
 
-  tryAutoLogin() {
-    const account = this.accountStore.getActiveAccount();
+  async tryAutoLogin() {
+    const account = await this.accountStore.restoreActiveAccount();
     if (account) {
       this.startGame(account);
+      this.toast.show('Willkommen zurück, deine Sitzung wurde geladen.');
     }
   }
 
@@ -819,12 +1000,14 @@ class App {
     this.game.init();
   }
 
-  logout() {
-    this.accountStore.clearActive();
+  async logout() {
+    await this.accountStore.logout();
     this.game?.stopLoop();
     this.game = null;
     document.getElementById('game').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
+    document.getElementById('player-company').textContent = '';
+    this.toast.show('Erfolgreich abgemeldet.');
   }
 }
 
