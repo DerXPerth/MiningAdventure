@@ -68,8 +68,19 @@ def main() -> None:
         'trade-resource',
         'trade-sell',
         'upgrade-logistics',
-        'save-game',
         'logout',
+        'settings-button',
+        'help-button',
+        'settings-modal',
+        'help-modal',
+        'settings-form',
+        'window-scale',
+        'map-scale',
+        'window-tab-bar',
+        'mine-frames',
+        'tutorial',
+        'tutorial-reset',
+        'guild-resource-ledger',
     }
 
     missing = sorted(required_ids - collector.ids.keys())
