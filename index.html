@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StrataSphere - Das Bergbau-Browsergame</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-o9N1j7k2fDgGUNShUMpFUFJ7Mn1jH0zEOfvTIs8u0XY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="landing-header">
+        <div class="container">
+          <div class="branding">
+            <img src="assets/images/logo.svg" alt="StrataSphere" id="logo" />
+            <h1>StrataSphere</h1>
+            <p>Baue dein globales Bergbauimperium auf.</p>
+          </div>
+          <nav>
+            <a href="#features">Features</a>
+            <a href="#vision">Vision</a>
+            <a href="#cta" class="btn btn-primary">Jetzt spielen</a>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" id="cta">
+          <div class="container hero-content">
+            <div>
+              <h2>Vom Funken zur Metropole</h2>
+              <p>
+                Gründe dein eigenes Bergbauunternehmen, erschließe Ressourcen auf der
+                ganzen Welt, forsche nach High-Tech-Maschinen und erschaffe lebendige
+                Städte für deine Crew. Alles in Echtzeit, direkt im Browser.
+              </p>
+              <div class="cta-buttons">
+                <button class="btn btn-primary" id="open-login">Anmelden</button>
+                <button class="btn btn-secondary" id="open-register">
+                  Registrieren
+                </button>
+              </div>
+            </div>
+            <div class="hero-visual">
+              <div class="hero-card">
+                <h3>Highlights</h3>
+                <ul>
+                  <li>Weltweite Minen auf einer echten Karte</li>
+                  <li>Vollständiger Tag-Nacht-Zyklus</li>
+                  <li>Forschung, Upgrades &amp; Handel</li>
+                  <li>Live-Wirtschaftssimulation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="features" id="features">
+          <div class="container">
+            <h2>Gameplay-Features</h2>
+            <div class="feature-grid">
+              <article>
+                <h3>Globale Expansion</h3>
+                <p>
+                  Nutze OpenStreetMap, um neue Minen überall auf der Welt zu platzieren,
+                  lokale Gegebenheiten zu analysieren und Logistikketten aufzubauen.
+                </p>
+              </article>
+              <article>
+                <h3>Wirtschaft trifft Strategie</h3>
+                <p>
+                  Plane Produktion, Verkauf und Forschung. Balanciere Personal,
+                  Maschinen und Nachhaltigkeit, um langfristig zu wachsen.
+                </p>
+              </article>
+              <article>
+                <h3>Lebendige Welt</h3>
+                <p>
+                  Erlebe dynamisches Wetter, Tag-Nacht-Zyklen und KI-generierte Events,
+                  die deine Entscheidungen herausfordern.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="vision" id="vision">
+          <div class="container vision-content">
+            <div>
+              <h2>Unsere Vision</h2>
+              <p>
+                StrataSphere verbindet Wirtschaftsstrategie mit Storytelling. Jeder
+                Rohstoff hat eine Herkunft, jede Stadt ein Schicksal. Entwickle dich vom
+                wagemutigen Gründer zum Visionär, dessen Entscheidungen den globalen
+                Markt beeinflussen.
+              </p>
+              <p>
+                Entwickelt als Lernprojekt, aber mit dem Anspruch, dir ein vollständiges
+                Spielgefühl zu geben. Mit Liebe zum Detail, modernen Webtechnologien und
+                einem Fokus auf Zugänglichkeit.
+              </p>
+            </div>
+            <div class="vision-card">
+              <h3>Technologie-Stack</h3>
+              <ul>
+                <li>HTML5, CSS3, Vanilla JavaScript</li>
+                <li>Leaflet &amp; OpenStreetMap</li>
+                <li>LocalStorage Spielstand</li>
+                <li>Responsives UI-Design</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="landing-footer">
+        <div class="container">
+          <p>&copy; <span id="year"></span> StrataSphere. Alle Rechte vorbehalten.</p>
+          <div class="footer-links">
+            <a href="#">Impressum</a>
+            <a href="#">Datenschutz</a>
+            <a href="#" id="open-game">Zum Spiel</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div class="modal" id="auth-modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-modal="true">
+        <button class="modal-close" id="close-modal" aria-label="Schließen">×</button>
+        <div class="modal-body">
+          <div class="auth-tabs">
+            <button class="tab-button active" data-target="login-form">
+              Anmelden
+            </button>
+            <button class="tab-button" data-target="register-form">
+              Registrieren
+            </button>
+          </div>
+          <form id="login-form" class="auth-form active">
+            <label>
+              Benutzername
+              <input type="text" name="username" required />
+            </label>
+            <label>
+              Passwort
+              <input type="password" name="password" required />
+            </label>
+            <button type="submit" class="btn btn-primary">Login</button>
+            <p class="form-message" data-role="login"></p>
+          </form>
+          <form id="register-form" class="auth-form">
+            <label>
+              Benutzername
+              <input type="text" name="username" required />
+            </label>
+            <label>
+              Passwort
+              <input type="password" name="password" required />
+            </label>
+            <label>
+              Unternehmen
+              <input type="text" name="company" required />
+            </label>
+            <button type="submit" class="btn btn-secondary">Account erstellen</button>
+            <p class="form-message" data-role="register"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="game" class="hidden">
+      <header class="game-header">
+        <div class="game-title">
+          <img src="assets/images/logo.svg" alt="StrataSphere" />
+          <div>
+            <h1>StrataSphere Control</h1>
+            <p>Leite dein Bergbauimperium mit globaler Übersicht.</p>
+          </div>
+        </div>
+        <div class="game-actions">
+          <span id="player-company"></span>
+          <button id="save-game" class="btn btn-secondary">Speichern</button>
+          <button id="logout" class="btn btn-outline">Logout</button>
+        </div>
+      </header>
+
+      <div class="game-body">
+        <div id="map"></div>
+
+        <div class="hud-grid">
+          <div class="ui-window" id="status-window">
+            <div class="window-header">
+              <h2>Status</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p><strong>Zeit:</strong> <span id="time-display"></span></p>
+              <p><strong>Credits:</strong> <span id="credits-display"></span></p>
+              <p><strong>Forschung:</strong> <span id="research-display"></span></p>
+              <div class="resource-list" id="resource-list"></div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="mine-window">
+            <div class="window-header">
+              <h2>Minen</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p>
+                Klicke auf die Weltkarte, um eine neue Mine zu platzieren. Jede Mine kann
+                Upgrades, Belegschaft und Logistik erhalten.
+              </p>
+              <div id="mine-list"></div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="logistics-window">
+            <div class="window-header">
+              <h2>Handel &amp; Logistik</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p>
+                Verkaufe Ressourcen, investiere in Frachtkapazität und optimiere deine
+                Lieferketten, um maximale Gewinne zu erzielen.
+              </p>
+              <div class="trade-panel">
+                <label>
+                  Ressource
+                  <select id="trade-resource"></select>
+                </label>
+                <label>
+                  Menge
+                  <input type="number" id="trade-amount" min="0" value="0" />
+                </label>
+                <button class="btn btn-primary" id="trade-sell">Verkaufen</button>
+                <p class="trade-price">Marktpreis: <span id="trade-price"></span></p>
+              </div>
+              <div class="logistics-upgrades">
+                <h3>Logistik-Upgrades</h3>
+                <button class="btn btn-secondary" id="upgrade-logistics">
+                  Flottenkapazität erhöhen (Kosten: 1.500 Credits)
+                </button>
+                <p>Aktuelle Kapazität: <span id="logistics-capacity"></span> t/min</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="research-window">
+            <div class="window-header">
+              <h2>Forschung</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <p>Schalte Technologien frei, um Produktion und Nachhaltigkeit zu boosten.</p>
+              <div id="research-list"></div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="guild-window">
+            <div class="window-header">
+              <h2>Zunft</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body">
+              <div id="guild-empty" class="guild-panel">
+                <p>Verbünde dich mit anderen Spieler:innen, um globale Synergien freizuschalten.</p>
+                <div class="panel-actions">
+                  <button class="btn btn-secondary" id="open-guild-browser">Zünfte entdecken</button>
+                  <button class="btn btn-primary" id="open-guild-create">Zunft gründen</button>
+                </div>
+              </div>
+
+              <div id="guild-browser" class="guild-panel hidden">
+                <div class="guild-toolbar">
+                  <button class="btn btn-outline" id="guild-browser-back">Zurück</button>
+                </div>
+                <div id="guild-list" class="guild-list"></div>
+              </div>
+
+              <div id="guild-create" class="guild-panel hidden">
+                <form id="guild-create-form" class="guild-form">
+                  <label>
+                    Name der Zunft
+                    <input type="text" name="name" minlength="3" maxlength="48" required />
+                  </label>
+                  <label>
+                    Motto
+                    <input type="text" name="motto" minlength="4" maxlength="120" required />
+                  </label>
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Zunft gründen</button>
+                    <button type="button" class="btn btn-outline" id="guild-create-cancel">Abbrechen</button>
+                  </div>
+                </form>
+              </div>
+
+              <div id="guild-dashboard" class="guild-panel hidden">
+                <header class="guild-header">
+                  <div>
+                    <h3 id="guild-name"></h3>
+                    <p id="guild-motto"></p>
+                  </div>
+                  <div class="guild-meta">
+                    <span>Rolle: <strong id="guild-role"></strong></span>
+                    <div class="guild-meta-actions">
+                      <button class="btn btn-secondary" id="guild-refresh">Aktualisieren</button>
+                      <button class="btn btn-outline" id="guild-leave">Verlassen</button>
+                    </div>
+                  </div>
+                </header>
+
+                <div class="guild-columns">
+                  <section class="guild-section">
+                    <h4>Mitglieder</h4>
+                    <ul id="guild-member-list"></ul>
+                  </section>
+                  <section class="guild-section">
+                    <h4>Zunft-Technologien</h4>
+                    <ul id="guild-tech-list" class="tech-list"></ul>
+                  </section>
+                </div>
+
+                <div class="guild-columns">
+                  <section class="guild-section">
+                    <h4>Zunft-Zonen</h4>
+                    <ul id="guild-zone-list"></ul>
+                    <form id="guild-zone-form" class="zone-form">
+                      <label>
+                        Mine als Zentrum
+                        <select id="zone-mine-select" name="mine"></select>
+                      </label>
+                      <label>
+                        Radius (km)
+                        <input type="number" id="zone-radius" name="radius" value="80" min="20" max="250" />
+                      </label>
+                      <button type="submit" class="btn btn-secondary">Zone beanspruchen</button>
+                    </form>
+                  </section>
+                  <section class="guild-section">
+                    <h4>Unterstützung</h4>
+                    <form id="guild-support-form" class="support-form">
+                      <label>
+                        Art der Hilfe
+                        <select name="type">
+                          <option value="Logistik">Logistik</option>
+                          <option value="Forschung">Forschung</option>
+                          <option value="Rohstoffe">Rohstoffe</option>
+                        </select>
+                      </label>
+                      <label>
+                        Umfang
+                        <input type="number" name="amount" min="0" value="60" />
+                      </label>
+                      <label>
+                        Nachricht
+                        <textarea name="note" rows="2" placeholder="Was wird benötigt?"></textarea>
+                      </label>
+                      <button type="submit" class="btn btn-primary">Unterstützung anfragen</button>
+                    </form>
+                    <ul id="guild-support-queue" class="support-queue"></ul>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="community-window">
+            <div class="window-header">
+              <h2>Welt &amp; Events</h2>
+              <div class="window-actions">
+                <button class="window-minimize" aria-label="Minimieren">–</button>
+              </div>
+            </div>
+            <div class="window-body community-body">
+              <section>
+                <h3>Aktive Weltereignisse</h3>
+                <ul id="world-events" class="event-list"></ul>
+              </section>
+              <section>
+                <h3>Gilden-Ranking</h3>
+                <ul id="world-guilds" class="leaderboard"></ul>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="mine-modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-modal="true">
+        <button class="modal-close" data-close="mine" aria-label="Schließen">
+          ×
+        </button>
+        <div class="modal-body">
+          <h2>Neue Mine errichten</h2>
+          <p class="modal-hint">
+            Wähle die Ressource, vergebe einen Namen und entscheide, wie viele
+            Ingenieure du zu Beginn zuweist. Standort: <span id="mine-location"></span>
+          </p>
+          <form id="mine-form" class="mine-form">
+            <label>
+              Name
+              <input type="text" name="name" placeholder="Aurora-Station" required />
+            </label>
+            <label>
+              Ressource
+              <select name="resource" required>
+                <option value="iron">Eisen</option>
+                <option value="copper">Kupfer</option>
+                <option value="coal">Kohle</option>
+                <option value="gold">Gold</option>
+                <option value="uranium">Uran</option>
+              </select>
+            </label>
+            <label>
+              Startbelegschaft
+              <input
+                type="number"
+                name="workers"
+                min="5"
+                max="250"
+                value="25"
+                required
+              />
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Mine bauen (Kosten: 750 Credits)</button>
+              <button type="button" class="btn btn-outline" data-close="mine">Abbrechen</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-o9N1j7k2fDgGUNShUMpFUFJ7Mn1jH0zEOfvTIs8u0XY="
+      crossorigin=""
+    ></script>
+    <script type="module" src="assets/js/main.js"></script>
+  </body>
+</html>

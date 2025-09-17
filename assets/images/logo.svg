@@ -1,0 +1,22 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">StrataSphere Logo</title>
+  <desc id="desc">Abstraktes Logo eines kristallinen Planeten</desc>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="55" fill="url(#grad)" opacity="0.2" />
+  <path
+    d="M25 80 L45 35 L65 60 L85 20 L100 85 Z"
+    fill="none"
+    stroke="url(#grad)"
+    stroke-width="8"
+    stroke-linejoin="round"
+  />
+  <circle cx="65" cy="60" r="6" fill="#f59e0b" />
+  <circle cx="85" cy="20" r="6" fill="#2563eb" />
+  <circle cx="45" cy="35" r="6" fill="#14b8a6" />
+</svg>
