@@ -930,7 +930,7 @@ class App {
         this.switchTab(tab.dataset.target);
       });
     });
-
+    
     loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const formData = new FormData(loginForm);
