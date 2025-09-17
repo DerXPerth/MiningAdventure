@@ -1,10 +1,10 @@
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   accounts: 'stratasphere_accounts_v1',
   active: 'stratasphere_active_v1',
   session: 'stratasphere_session_v1',
 };
 
-const RESOURCE_DEFS = {
+export const RESOURCE_DEFS = {
   iron: {
     name: 'Eisen',
     baseRate: 16,
@@ -47,7 +47,7 @@ const RESOURCE_DEFS = {
   },
 };
 
-const GUILD_TECHS = [
+export const GUILD_TECHS = [
   {
     id: 'synergy_drills',
     name: 'Synergiebohrer',
@@ -74,7 +74,7 @@ const GUILD_TECHS = [
   },
 ];
 
-const RESEARCH_DEFS = [
+export const RESEARCH_DEFS = [
   {
     id: 'automation',
     name: 'Adaptive Automatisierung',
@@ -109,7 +109,7 @@ const RESEARCH_DEFS = [
   },
 ];
 
-const INITIAL_STATE = () => ({
+export const INITIAL_STATE = () => ({
   credits: 5000,
   researchPoints: 120,
   day: 1,
@@ -147,7 +147,7 @@ const generateId = () => {
 
 const toRadians = (degrees) => (degrees * Math.PI) / 180;
 
-const createCircularPolygon = (center, radiusKm, segments = 24) => {
+export const createCircularPolygon = (center, radiusKm, segments = 24) => {
   const points = [];
   const earthRadiusKm = 6371;
   for (let i = 0; i < segments; i += 1) {
@@ -169,7 +169,7 @@ const createCircularPolygon = (center, radiusKm, segments = 24) => {
   return points;
 };
 
-const pointInPolygon = (point, polygon) => {
+export const pointInPolygon = (point, polygon) => {
   const [lat, lng] = point;
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i, i += 1) {
@@ -184,7 +184,7 @@ const pointInPolygon = (point, polygon) => {
   return inside;
 };
 
-class RemoteGateway {
+export class RemoteGateway {
   constructor(baseUrl = 'server/api.php') {
     this.baseUrl = baseUrl;
   }
@@ -265,7 +265,7 @@ class RemoteGateway {
   }
 }
 
-class AccountStore {
+export class AccountStore {
   constructor(storage, remoteGateway) {
     this.storage = storage;
     this.remote = remoteGateway;
@@ -481,7 +481,7 @@ class AccountStore {
   }
 }
 
-class Toast {
+export class Toast {
   constructor() {
     this.element = document.createElement('div');
     this.element.className = 'toast';
@@ -498,7 +498,7 @@ class Toast {
   }
 }
 
-class GameEngine {
+export class GameEngine {
   constructor(account, accountStore, toast) {
     this.account = account;
     this.accountStore = accountStore;
@@ -1118,6 +1118,7 @@ class GameEngine {
         const maxY = bounds.height - windowEl.offsetHeight - 12;
         windowEl.style.left = `${Math.max(12, Math.min(targetX, maxX))}px`;
         windowEl.style.top = `${Math.max(12, Math.min(targetY, maxY))}px`;
+      };
 
       header.addEventListener('mousedown', (event) => {
         if (window.innerWidth < 1024) return;
@@ -1625,7 +1626,7 @@ class GameEngine {
   }
 }
 
-class App {
+export class App {
   constructor() {
     this.accountStore = new AccountStore(window.localStorage, new RemoteGateway());
     this.toast = new Toast();
@@ -1765,6 +1766,10 @@ class App {
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  new App();
-});
+export const bootstrapApp = () => new App();
+
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', () => {
+    bootstrapApp();
+  });
+}
