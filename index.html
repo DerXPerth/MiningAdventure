@@ -24,13 +24,16 @@
         <div class="container">
           <div class="branding">
             <img src="assets/images/logo.svg" alt="StrataSphere" id="logo" />
-            <h1>StrataSphere</h1>
-            <p>Baue dein globales Bergbauimperium auf.</p>
+            <div>
+              <h1>StrataSphere</h1>
+              <p>Das kooperative Bergbau-Browser-MMO.</p>
+            </div>
           </div>
-          <nav>
+          <nav class="landing-nav">
             <a href="#features">Features</a>
+            <a href="#guilds">Zünfte</a>
             <a href="#vision">Vision</a>
-            <a href="#cta" class="btn btn-primary">Jetzt spielen</a>
+            <a href="#tutorial" class="btn btn-primary">So startest du</a>
           </nav>
         </div>
       </header>
@@ -38,12 +41,12 @@
       <main>
         <section class="hero" id="cta">
           <div class="container hero-content">
-            <div>
+            <div class="hero-copy">
               <h2>Vom Funken zur Metropole</h2>
               <p>
-                Gründe dein eigenes Bergbauunternehmen, erschließe Ressourcen auf der
-                ganzen Welt, forsche nach High-Tech-Maschinen und erschaffe lebendige
-                Städte für deine Crew. Alles in Echtzeit, direkt im Browser.
+                Gründe dein eigenes Bergbauunternehmen, sichere dir Einflusszonen für
+                deine Zunft und entwickle gemeinsam futuristische Technologien. Baue,
+                forsche und handle in einer lebendigen Echtzeit-Simulation.
               </p>
               <div class="cta-buttons">
                 <button class="btn btn-primary" id="open-login">Anmelden</button>
@@ -53,13 +56,18 @@
               </div>
             </div>
             <div class="hero-visual">
+              <img
+                src="https://cdn.midjourney.com/d65df306-hero-colony.jpg"
+                alt="AI-Rendering einer futuristischen Bergbaustadt"
+                class="hero-image"
+              />
               <div class="hero-card">
                 <h3>Highlights</h3>
                 <ul>
-                  <li>Weltweite Minen auf einer echten Karte</li>
-                  <li>Vollständiger Tag-Nacht-Zyklus</li>
-                  <li>Forschung, Upgrades &amp; Handel</li>
-                  <li>Live-Wirtschaftssimulation</li>
+                  <li>Anspruch auf Regionen mit Zunft-Boni</li>
+                  <li>Gemeinsame Zunftforschung &amp; Ressourcenpools</li>
+                  <li>Anpassbare Bedienoberfläche mit Tabs &amp; Frames</li>
+                  <li>Automatische Server-Synchronisation</li>
                 </ul>
               </div>
             </div>
@@ -91,6 +99,41 @@
                   die deine Entscheidungen herausfordern.
                 </p>
               </article>
+              <article>
+                <h3>Adaptive Steuerung</h3>
+                <p>
+                  Verschiebbare und skalierbare Oberflächen, Tabs für Nebenfenster und
+                  auslagerbare Statistiken in Iframes sorgen für maximale Übersicht.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="guild-showcase" id="guilds">
+          <div class="container guild-layout">
+            <div class="guild-copy">
+              <h2>Zünfte neu gedacht</h2>
+              <p>
+                Koordiniere mit anderen Spieler:innen Forschung, Ressourcenausbau und
+                Einflussgebiete. Jede Zunft verwaltet einen exklusiven Rohstoffpool und
+                kann Regionen mit mächtigen Boni beanspruchen.
+              </p>
+              <ul class="guild-points">
+                <li>Gemeinsame Technologien für Produktions-Boosts</li>
+                <li>Regionale Buffs für Minen innerhalb deiner Einflusszonen</li>
+                <li>Strategische Aufträge &amp; Unterstützungssysteme</li>
+              </ul>
+            </div>
+            <div class="guild-gallery">
+              <img
+                src="https://cdn.midjourney.com/0a82d9fd-guild-hall.jpg"
+                alt="AI-Konzeptkunst eines Zunft-Hauptquartiers"
+              />
+              <img
+                src="https://cdn.midjourney.com/0f21bf42-guild-map.jpg"
+                alt="AI-Darstellung einer holographischen Weltkarte"
+              />
             </div>
           </div>
         </section>
@@ -112,12 +155,16 @@
               </p>
             </div>
             <div class="vision-card">
+              <img
+                src="https://cdn.midjourney.com/94b73e3f-tech-lab.jpg"
+                alt="AI-Visualisierung eines futuristischen Kontrollraums"
+              />
               <h3>Technologie-Stack</h3>
               <ul>
-                <li>HTML5, CSS3, Vanilla JavaScript</li>
-                <li>Leaflet &amp; OpenStreetMap</li>
-                <li>LocalStorage Spielstand</li>
-                <li>Responsives UI-Design</li>
+                <li>HTML5, CSS3, modulare Vanilla-JS-Engine</li>
+                <li>Leaflet &amp; OpenStreetMap für globale Simulation</li>
+                <li>Serverseitige Persistenz &amp; Remote APIs</li>
+                <li>Progressive Web App Features in Planung</li>
               </ul>
             </div>
           </div>
@@ -140,42 +187,60 @@
       <div class="modal-content" role="dialog" aria-modal="true">
         <button class="modal-close" id="close-modal" aria-label="Schließen">×</button>
         <div class="modal-body">
-          <div class="auth-tabs">
-            <button class="tab-button active" data-target="login-form">
-              Anmelden
-            </button>
-            <button class="tab-button" data-target="register-form">
-              Registrieren
-            </button>
+          <div class="auth-switcher">
+            <div class="auth-surfaces">
+              <section class="auth-surface active" data-surface="login">
+                <aside class="auth-art">
+                  <img
+                    src="https://cdn.midjourney.com/1b33c0f5-login.jpg"
+                    alt="AI-Rendering eines Kontrollpanels"
+                  />
+                </aside>
+                <form id="login-form" class="auth-form">
+                  <h3>Control Center</h3>
+                  <label>
+                    Benutzername
+                    <input type="text" name="username" required autocomplete="username" />
+                  </label>
+                  <label>
+                    Passwort
+                    <input type="password" name="password" required autocomplete="current-password" />
+                  </label>
+                  <button type="submit" class="btn btn-primary">Login</button>
+                  <p class="form-message" data-role="login"></p>
+                </form>
+              </section>
+              <section class="auth-surface" data-surface="register">
+                <aside class="auth-art">
+                  <img
+                    src="https://cdn.midjourney.com/af907f1d-register.jpg"
+                    alt="AI-Rendering eines Zunft-Besprechungsraums"
+                  />
+                </aside>
+                <form id="register-form" class="auth-form">
+                  <h3>Neu in StrataSphere</h3>
+                  <label>
+                    Benutzername
+                    <input type="text" name="username" required autocomplete="username" />
+                  </label>
+                  <label>
+                    Passwort
+                    <input type="password" name="password" required autocomplete="new-password" />
+                  </label>
+                  <label>
+                    Unternehmen
+                    <input type="text" name="company" required />
+                  </label>
+                  <button type="submit" class="btn btn-secondary">Account erstellen</button>
+                  <p class="form-message" data-role="register"></p>
+                </form>
+              </section>
+            </div>
+            <div class="auth-toggle">
+              <button class="btn btn-outline" data-switch="login">Zur Anmeldung</button>
+              <button class="btn btn-outline" data-switch="register">Zur Registrierung</button>
+            </div>
           </div>
-          <form id="login-form" class="auth-form active">
-            <label>
-              Benutzername
-              <input type="text" name="username" required />
-            </label>
-            <label>
-              Passwort
-              <input type="password" name="password" required />
-            </label>
-            <button type="submit" class="btn btn-primary">Login</button>
-            <p class="form-message" data-role="login"></p>
-          </form>
-          <form id="register-form" class="auth-form">
-            <label>
-              Benutzername
-              <input type="text" name="username" required />
-            </label>
-            <label>
-              Passwort
-              <input type="password" name="password" required />
-            </label>
-            <label>
-              Unternehmen
-              <input type="text" name="company" required />
-            </label>
-            <button type="submit" class="btn btn-secondary">Account erstellen</button>
-            <p class="form-message" data-role="register"></p>
-          </form>
         </div>
       </div>
     </div>
@@ -191,21 +256,34 @@
         </div>
         <div class="game-actions">
           <span id="player-company"></span>
-          <button id="save-game" class="btn btn-secondary">Speichern</button>
+          <button id="settings-button" class="btn btn-secondary">Einstellungen</button>
+          <button id="help-button" class="btn btn-outline">Hilfe</button>
           <button id="logout" class="btn btn-outline">Logout</button>
         </div>
       </header>
 
       <div class="game-body">
-        <div id="map"></div>
+        <div class="map-wrapper">
+          <div id="map-controls">
+            <label>
+              Oberflächen-Größe
+              <input type="range" id="window-scale" min="80" max="140" value="100" />
+            </label>
+            <label>
+              Karten-Zoom
+              <input type="range" id="map-scale" min="2" max="6" value="3" />
+            </label>
+          </div>
+          <div id="map"></div>
+        </div>
+
+        <aside id="window-tab-bar" class="tab-bar"></aside>
 
         <div class="hud-grid">
           <div class="ui-window" id="status-window">
             <div class="window-header">
               <h2>Status</h2>
-              <div class="window-actions">
-                <button class="window-minimize" aria-label="Minimieren">–</button>
-              </div>
+              <div class="window-actions" data-window="status-window"></div>
             </div>
             <div class="window-body">
               <p><strong>Zeit:</strong> <span id="time-display"></span></p>
@@ -218,9 +296,7 @@
           <div class="ui-window" id="mine-window">
             <div class="window-header">
               <h2>Minen</h2>
-              <div class="window-actions">
-                <button class="window-minimize" aria-label="Minimieren">–</button>
-              </div>
+              <div class="window-actions" data-window="mine-window"></div>
             </div>
             <div class="window-body">
               <p>
@@ -228,15 +304,14 @@
                 Upgrades, Belegschaft und Logistik erhalten.
               </p>
               <div id="mine-list"></div>
+              <div id="mine-frames" class="iframe-drawer"></div>
             </div>
           </div>
 
           <div class="ui-window" id="logistics-window">
             <div class="window-header">
               <h2>Handel &amp; Logistik</h2>
-              <div class="window-actions">
-                <button class="window-minimize" aria-label="Minimieren">–</button>
-              </div>
+              <div class="window-actions" data-window="logistics-window"></div>
             </div>
             <div class="window-body">
               <p>
@@ -268,9 +343,7 @@
           <div class="ui-window" id="research-window">
             <div class="window-header">
               <h2>Forschung</h2>
-              <div class="window-actions">
-                <button class="window-minimize" aria-label="Minimieren">–</button>
-              </div>
+              <div class="window-actions" data-window="research-window"></div>
             </div>
             <div class="window-body">
               <p>Schalte Technologien frei, um Produktion und Nachhaltigkeit zu boosten.</p>
@@ -281,9 +354,7 @@
           <div class="ui-window" id="guild-window">
             <div class="window-header">
               <h2>Zunft</h2>
-              <div class="window-actions">
-                <button class="window-minimize" aria-label="Minimieren">–</button>
-              </div>
+              <div class="window-actions" data-window="guild-window"></div>
             </div>
             <div class="window-body">
               <div id="guild-empty" class="guild-panel">
@@ -383,17 +454,77 @@
                     </form>
                     <ul id="guild-support-queue" class="support-queue"></ul>
                   </section>
+                  <section class="guild-section">
+                    <h4>Zunft-Ressourcen</h4>
+                    <ul id="guild-resource-ledger"></ul>
+                  </section>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div class="ui-window" id="operations-window">
+            <div class="window-header">
+              <h2>Provinzverwaltung</h2>
+              <div class="window-actions" data-window="operations-window"></div>
+            </div>
+            <div class="window-body operations-body">
+              <section class="operations-overview">
+                <div class="doctrine-select">
+                  <label>
+                    Doktrin
+                    <select id="doctrine-select">
+                      <option value="Expansion">Expansion</option>
+                      <option value="Fortifikation">Fortifikation</option>
+                      <option value="Handelsnetz">Handelsnetz</option>
+                    </select>
+                  </label>
+                </div>
+                <div id="province-list" class="province-list"></div>
+              </section>
+              <section class="operations-queue">
+                <h3>Bau- &amp; Forschungsaufträge</h3>
+                <form id="province-project-form" class="project-form">
+                  <label>
+                    Provinz
+                    <select id="province-select" name="province"></select>
+                  </label>
+                  <label>
+                    Projekt
+                    <select id="province-project-select" name="project"></select>
+                  </label>
+                  <button type="submit" class="btn btn-primary">Projekt einreihen</button>
+                </form>
+                <ul id="province-queue" class="queue-list"></ul>
+              </section>
+            </div>
+          </div>
+
+          <div class="ui-window" id="dispatch-window">
+            <div class="window-header">
+              <h2>Einsatzleitstand</h2>
+              <div class="window-actions" data-window="dispatch-window"></div>
+            </div>
+            <div class="window-body dispatch-body">
+              <section>
+                <h3>Einheiten</h3>
+                <div id="dispatch-unit-list" class="unit-list"></div>
+              </section>
+              <section>
+                <h3>Aktive Einsätze</h3>
+                <ul id="dispatch-mission-list" class="mission-list"></ul>
+              </section>
+              <section>
+                <h3>Historie</h3>
+                <ul id="dispatch-history" class="history-list"></ul>
+              </section>
             </div>
           </div>
 
           <div class="ui-window" id="community-window">
             <div class="window-header">
               <h2>Welt &amp; Events</h2>
-              <div class="window-actions">
-                <button class="window-minimize" aria-label="Minimieren">–</button>
-              </div>
+              <div class="window-actions" data-window="community-window"></div>
             </div>
             <div class="window-body community-body">
               <section>
@@ -452,6 +583,88 @@
               <button type="button" class="btn btn-outline" data-close="mine">Abbrechen</button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="settings-modal" aria-hidden="true">
+      <div class="modal-content large" role="dialog" aria-modal="true">
+        <button class="modal-close" data-close="settings" aria-label="Schließen">×</button>
+        <div class="modal-body settings-body">
+          <h2>Interface &amp; Gameplay-Einstellungen</h2>
+          <form id="settings-form">
+            <fieldset>
+              <legend>Darstellung</legend>
+              <label>
+                Schriftgröße
+                <input type="range" name="fontScale" min="90" max="130" value="100" />
+              </label>
+              <label>
+                Farbschema
+                <select name="theme">
+                  <option value="default">Aurora</option>
+                  <option value="void">Voidcore</option>
+                  <option value="sunrise">Sunrise</option>
+                </select>
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>Game-Mechaniken</legend>
+              <label class="toggle">
+                <input type="checkbox" name="autoTrade" />
+                <span>Automatisierter Verkaufsvorschlag</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" name="experimentalWeather" />
+                <span>Experimentelle Wettereffekte aktivieren</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" name="notifyGuild" checked />
+                <span>Gilden-Benachrichtigungen anzeigen</span>
+              </label>
+            </fieldset>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Speichern</button>
+              <button type="button" class="btn btn-outline" data-close="settings">Abbrechen</button>
+              <button type="button" class="btn btn-outline" id="tutorial-reset">Tutorial neu starten</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="help-modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-modal="true">
+        <button class="modal-close" data-close="help" aria-label="Schließen">×</button>
+        <div class="modal-body help-body">
+          <h2>Hilfe &amp; Support</h2>
+          <p>
+            Willkommen im StrataSphere-Kontrollraum. Hier findest du Kurztipps. Ein dedizierter
+            Support-Kanal folgt mit einem späteren Update.
+          </p>
+          <ul>
+            <li>Minimiere Fenster, um sie in der Tab-Leiste abzulegen.</li>
+            <li>Nutze die Gildenansicht, um Einflusszonen zu beanspruchen.</li>
+            <li>Alle Daten werden automatisch mit dem Server synchronisiert.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="tutorial" class="tutorial hidden" aria-hidden="true">
+      <div class="tutorial-overlay"></div>
+      <div class="tutorial-panel" role="dialog" aria-modal="true">
+        <div class="tutorial-media">
+          <img src="https://cdn.midjourney.com/19e4ed87-tutorial.jpg" alt="AI-Illustration eines Trainingscenters" />
+        </div>
+        <div class="tutorial-body">
+          <h2>StrataSphere Academy</h2>
+          <p id="tutorial-text"></p>
+          <div class="tutorial-actions">
+            <button class="btn btn-outline" id="tutorial-back">Zurück</button>
+            <button class="btn btn-secondary" id="tutorial-next">Weiter</button>
+            <button class="btn btn-outline" id="tutorial-skip">Überspringen</button>
+          </div>
         </div>
       </div>
     </div>
