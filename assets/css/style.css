@@ -860,7 +860,7 @@ img {
 
 .unit-list {
   display: grid;
-  gap: 0.75rem;
+  gap: 1.5rem;
 }
 
 .unit-card {
@@ -1094,7 +1094,11 @@ img {
   border-radius: 1rem;
   padding: 1rem 1.25rem;
   display: grid;
-  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  background: rgba(10, 14, 22, 0.95);
+  border-radius: 1.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  overflow: hidden;
 }
 
 #settings-form legend {

@@ -373,6 +373,15 @@ export const DEFAULT_PREFERENCES = () => ({
   windowScale: 1,
 });
 
+export const DEFAULT_PREFERENCES = () => ({
+  fontScale: 1,
+  theme: 'default',
+  autoTrade: false,
+  experimentalWeather: false,
+  notifyGuild: true,
+  windowScale: 1,
+});
+
 const generateId = () => {
   if (crypto?.randomUUID) return crypto.randomUUID();
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -1040,7 +1049,6 @@ export class GameEngine {
       history: Array.isArray(this.state.dispatch.history) ? this.state.dispatch.history : [],
     };
   }
-
   setupGuildUI() {
     this.guildPanels = {
       empty: document.getElementById('guild-empty'),
@@ -1709,7 +1717,6 @@ export class GameEngine {
     this.persistState();
     this.render();
   }
-
   applyPreferences() {
     if (!this.hasDOM) return;
     const fontScale = this.preferences.fontScale || 1;
