@@ -463,6 +463,64 @@
             </div>
           </div>
 
+          <div class="ui-window" id="operations-window">
+            <div class="window-header">
+              <h2>Provinzverwaltung</h2>
+              <div class="window-actions" data-window="operations-window"></div>
+            </div>
+            <div class="window-body operations-body">
+              <section class="operations-overview">
+                <div class="doctrine-select">
+                  <label>
+                    Doktrin
+                    <select id="doctrine-select">
+                      <option value="Expansion">Expansion</option>
+                      <option value="Fortifikation">Fortifikation</option>
+                      <option value="Handelsnetz">Handelsnetz</option>
+                    </select>
+                  </label>
+                </div>
+                <div id="province-list" class="province-list"></div>
+              </section>
+              <section class="operations-queue">
+                <h3>Bau- &amp; Forschungsaufträge</h3>
+                <form id="province-project-form" class="project-form">
+                  <label>
+                    Provinz
+                    <select id="province-select" name="province"></select>
+                  </label>
+                  <label>
+                    Projekt
+                    <select id="province-project-select" name="project"></select>
+                  </label>
+                  <button type="submit" class="btn btn-primary">Projekt einreihen</button>
+                </form>
+                <ul id="province-queue" class="queue-list"></ul>
+              </section>
+            </div>
+          </div>
+
+          <div class="ui-window" id="dispatch-window">
+            <div class="window-header">
+              <h2>Einsatzleitstand</h2>
+              <div class="window-actions" data-window="dispatch-window"></div>
+            </div>
+            <div class="window-body dispatch-body">
+              <section>
+                <h3>Einheiten</h3>
+                <div id="dispatch-unit-list" class="unit-list"></div>
+              </section>
+              <section>
+                <h3>Aktive Einsätze</h3>
+                <ul id="dispatch-mission-list" class="mission-list"></ul>
+              </section>
+              <section>
+                <h3>Historie</h3>
+                <ul id="dispatch-history" class="history-list"></ul>
+              </section>
+            </div>
+          </div>
+
           <div class="ui-window" id="community-window">
             <div class="window-header">
               <h2>Welt &amp; Events</h2>

@@ -109,6 +109,228 @@ export const RESEARCH_DEFS = [
   },
 ];
 
+export const PROVINCE_PRESETS = [
+  {
+    id: 'aurora_caverns',
+    name: 'Aurora-Kaverne',
+    defaultFocus: 'produktion',
+    population: 2850,
+    prosperity: 52,
+    defense: 28,
+    culture: 34,
+    productionBonus: 0.04,
+    logisticsBonus: 0.02,
+    marketBonus: 0,
+    summary: 'Schachtanlagen unter polarisiertem Licht, spezialisiert auf Hochenergie-Erze.',
+    structures: ['Pionier-Depot'],
+  },
+  {
+    id: 'valoris_bastion',
+    name: 'Valoris-Kliff',
+    defaultFocus: 'verteidigung',
+    population: 1980,
+    prosperity: 44,
+    defense: 46,
+    culture: 22,
+    productionBonus: 0.02,
+    logisticsBonus: 0.01,
+    marketBonus: 0,
+    summary: 'Terrassierte Felsplateaus mit natürlichen Verteidigungsstellungen und Luftschleusen.',
+    structures: ['Frontier-Werkstatt'],
+  },
+  {
+    id: 'meridian_harbor',
+    name: 'Meridian-Hafen',
+    defaultFocus: 'produktion',
+    population: 3620,
+    prosperity: 60,
+    defense: 24,
+    culture: 48,
+    productionBonus: 0.03,
+    logisticsBonus: 0.05,
+    marketBonus: 0,
+    summary: 'Orbital angebundener Umschlagplatz, an dem jede Ressource ihren Käufer findet.',
+    structures: ['Orbitaler Umschlagplatz'],
+  },
+];
+
+export const PROVINCE_PROJECTS = [
+  {
+    id: 'titan_foundry',
+    name: 'Titan-Gießerei',
+    duration: 540,
+    cost: 1300,
+    description: 'Erweitert das Industriecluster um energieintensive Fertigungslinien.',
+    effects: {
+      production: 0.07,
+      prosperity: 6,
+      structure: 'Titan-Gießerei',
+    },
+  },
+  {
+    id: 'skyport',
+    name: 'Skyport-Relais',
+    duration: 420,
+    cost: 950,
+    description: 'Richtet eine permanente Luftbrücke für Versorgung und Evakuierung ein.',
+    effects: {
+      logistics: 0.06,
+      defense: 4,
+      structure: 'Skyport-Relais',
+    },
+  },
+  {
+    id: 'trade_forum',
+    name: 'Handelsforum Meridian',
+    duration: 480,
+    cost: 1100,
+    description: 'Etabliert diplomatische Handelskammern und optimierte Lieferverträge.',
+    effects: {
+      market: 0.05,
+      prosperity: 8,
+      structure: 'Handelsforum',
+    },
+  },
+  {
+    id: 'scholar_academy',
+    name: 'Akademie der Geomechanik',
+    duration: 360,
+    cost: 880,
+    description: 'Schult Fachpersonal in Hyperbohrverfahren und vernetzt Forschungsteams.',
+    effects: {
+      research: 90,
+      production: 0.03,
+      culture: 6,
+      structure: 'Akademie',
+    },
+  },
+  {
+    id: 'aegis_wall',
+    name: 'Aegis-Wall',
+    duration: 600,
+    cost: 1250,
+    description: 'Errichtet modulare Verteidigungsgürtel gegen Überfälle und Umweltgefahren.',
+    effects: {
+      defense: 12,
+      logistics: 0.02,
+      structure: 'Aegis-Wall',
+    },
+  },
+];
+
+export const DISPATCH_UNIT_PRESETS = [
+  {
+    id: 'unit-vanguard',
+    name: 'Vanguard-Ingenieurkorps',
+    type: 'engineering',
+    readiness: 1,
+    description: 'Spezialisiert auf Bergungsstützen und Evakuierungsrouten unter Tage.',
+  },
+  {
+    id: 'unit-responder',
+    name: 'Responder-Sanitätsstaffel',
+    type: 'medical',
+    readiness: 1,
+    description: 'Mobile Klinik mit Stabilisierungseinheiten für Großschadenslagen.',
+  },
+  {
+    id: 'unit-aerial',
+    name: 'Aerial-Lift Falko',
+    type: 'airlift',
+    readiness: 0.9,
+    description: 'Luftgestützte Transportplattform für schwer zugängliche Regionen.',
+  },
+  {
+    id: 'unit-logistics',
+    name: 'Atlas-Logistikstaffel',
+    type: 'logistics',
+    readiness: 1,
+    description: 'Koordiniert Versorgungsketten und modulare Depots.',
+  },
+];
+
+export const DISPATCH_MISSION_PRESETS = [
+  {
+    id: 'mission-collapse',
+    name: 'Schachtkollaps Draupnir',
+    location: 'Draupnir-Becken',
+    severity: 'hoch',
+    duration: 210,
+    expiry: 360,
+    requiredTypes: ['engineering', 'medical'],
+    reward: { credits: 950, influence: 6 },
+    description: 'Ein kollabierter Förderturm blockiert Rettungswege, schnelle Stabilisierung ist nötig.',
+  },
+  {
+    id: 'mission-flood',
+    name: 'Flut im Meridian-Hafen',
+    location: 'Meridian-Küste',
+    severity: 'mittel',
+    duration: 180,
+    expiry: 300,
+    requiredTypes: ['logistics', 'engineering'],
+    reward: { credits: 720, research: 55 },
+    description: 'Sturmfront spült Lagerbestände fort – Wiederaufbau der Versorgungsbrücken erforderlich.',
+  },
+  {
+    id: 'mission-outbreak',
+    name: 'Chemische Reaktion',
+    location: 'Aurora-Kaverne',
+    severity: 'kritisch',
+    duration: 260,
+    expiry: 330,
+    requiredTypes: ['medical', 'airlift'],
+    reward: { credits: 840, influence: 8 },
+    description: 'Unerwartete Gasentwicklung macht schnelle Evakuierungen notwendig.',
+  },
+  {
+    id: 'mission-relief',
+    name: 'Hilfskonvoi Valoris',
+    location: 'Valoris-Hochebene',
+    severity: 'niedrig',
+    duration: 150,
+    expiry: 420,
+    requiredTypes: ['logistics'],
+    reward: { credits: 540, research: 35, influence: 4 },
+    description: 'Ein Versorgungskonvoi steckt fest, Hilfsgüter müssen verteilt werden.',
+  },
+];
+
+const createInitialCommandState = () => ({
+  provinces: PROVINCE_PRESETS.map((preset) => ({
+    id: preset.id,
+    name: preset.name,
+    focus: preset.defaultFocus,
+    population: preset.population,
+    prosperity: preset.prosperity,
+    defense: preset.defense,
+    culture: preset.culture,
+    productionBonus: preset.productionBonus || 0,
+    logisticsBonus: preset.logisticsBonus || 0,
+    marketBonus: preset.marketBonus || 0,
+    summary: preset.summary,
+    structures: [...(preset.structures || [])],
+  })),
+  queue: [],
+  doctrine: 'Expansion',
+  unlockedDoctrines: ['Expansion', 'Fortifikation', 'Handelsnetz'],
+  supplyLines: [],
+});
+
+const createInitialDispatchState = () => ({
+  units: DISPATCH_UNIT_PRESETS.map((preset) => ({
+    id: preset.id,
+    templateId: preset.id,
+    name: preset.name,
+    type: preset.type,
+    readiness: preset.readiness ?? 1,
+    status: 'ready',
+    description: preset.description,
+  })),
+  missions: [],
+  history: [],
+});
+
 export const INITIAL_STATE = () => ({
   credits: 5000,
   researchPoints: 120,
@@ -138,6 +360,17 @@ export const INITIAL_STATE = () => ({
     supportReceived: 0,
   },
   timeline: [],
+  command: createInitialCommandState(),
+  dispatch: createInitialDispatchState(),
+});
+
+export const DEFAULT_PREFERENCES = () => ({
+  fontScale: 1,
+  theme: 'default',
+  autoTrade: false,
+  experimentalWeather: false,
+  notifyGuild: true,
+  windowScale: 1,
 });
 
 export const DEFAULT_PREFERENCES = () => ({
@@ -537,7 +770,25 @@ export class GameEngine {
     this.account = account;
     this.accountStore = accountStore;
     this.toast = toast;
-    this.state = account.state || INITIAL_STATE();
+    const baseState = INITIAL_STATE();
+    if (account.state) {
+      this.state = {
+        ...baseState,
+        ...account.state,
+        resources: { ...baseState.resources, ...(account.state.resources || {}) },
+        logistics: { ...baseState.logistics, ...(account.state.logistics || {}) },
+        research: {
+          ...baseState.research,
+          ...(account.state.research || {}),
+          bonuses: {
+            ...baseState.research.bonuses,
+            ...((account.state.research && account.state.research.bonuses) || {}),
+          },
+        },
+      };
+    } else {
+      this.state = baseState;
+    }
     this.map = null;
     this.mines = new Map();
     this.tickHandle = null;
@@ -557,7 +808,13 @@ export class GameEngine {
     this.tabBar = this.hasDOM ? document.getElementById('window-tab-bar') : null;
     this.minimizedWindows = new Map();
     this.windowContainer = this.hasDOM ? document.querySelector('.game-body') : null;
+    this.ensureCommandState();
+    this.ensureDispatchState();
     this.guildResources = this.initializeGuildResources();
+    this.dispatchSpawnTimer = 0;
+    if (this.state.dispatch.missions.length === 0) {
+      this.spawnDispatchMission(true);
+    }
     this.tutorialState = {
       element: this.hasDOM ? document.getElementById('tutorial') : null,
       text: this.hasDOM ? document.getElementById('tutorial-text') : null,
@@ -571,6 +828,8 @@ export class GameEngine {
         'Nutze die Weltkarte, um Minen zu platzieren. Mit dem Kartenregler passt du den Zoom direkt an.',
         'Jedes Fenster lässt sich verschieben, skalieren oder minimieren. Minimierte Fenster landen in der Tab-Leiste.',
         'In der Zunft-Ansicht koordinierst du Forschung, Einflusszonen und Unterstützungsanfragen.',
+        'Über Provinzen steuerst du wie in Age of Empires Fokus und Bauvorhaben für dein Territorium.',
+        'Im Einsatzleitstand entsendest du wie bei Leitstellenspielen Rettungsteams zu dynamischen Missionen.',
         'Alle Verwaltungsansichten öffnen sich in separaten Iframes, damit du fokussiert planen kannst.',
       ],
     };
@@ -604,6 +863,8 @@ export class GameEngine {
     document.querySelectorAll('[data-close="mine"]').forEach((btn) =>
       btn.addEventListener('click', () => this.toggleMineModal(false))
     );
+    this.setupOperationsUI();
+    this.setupDispatchUI();
     this.setupGuildUI();
   }
 
@@ -695,6 +956,99 @@ export class GameEngine {
     return remote ? { ...base, ...remote } : base;
   }
 
+  ensureCommandState() {
+    const baseline = createInitialCommandState();
+    if (!this.state.command) {
+      this.state.command = baseline;
+      return;
+    }
+    const provinces = Array.isArray(this.state.command.provinces) ? this.state.command.provinces : [];
+    const normalizedProvinces = baseline.provinces.map((preset) => {
+      const existing = provinces.find((province) => province.id === preset.id);
+      const structures = Array.isArray(existing?.structures)
+        ? existing.structures
+        : [...(preset.structures || [])];
+      return {
+        ...preset,
+        ...existing,
+        id: preset.id,
+        name: preset.name,
+        focus: existing?.focus || preset.focus,
+        population: typeof existing?.population === 'number' ? existing.population : preset.population,
+        prosperity: typeof existing?.prosperity === 'number' ? existing.prosperity : preset.prosperity,
+        defense: typeof existing?.defense === 'number' ? existing.defense : preset.defense,
+        culture: typeof existing?.culture === 'number' ? existing.culture : preset.culture,
+        productionBonus:
+          typeof existing?.productionBonus === 'number' ? existing.productionBonus : preset.productionBonus,
+        logisticsBonus:
+          typeof existing?.logisticsBonus === 'number' ? existing.logisticsBonus : preset.logisticsBonus,
+        marketBonus: typeof existing?.marketBonus === 'number' ? existing.marketBonus : preset.marketBonus,
+        structures,
+        summary: preset.summary,
+      };
+    });
+
+    const queue = Array.isArray(this.state.command.queue)
+      ? this.state.command.queue.filter((entry) => entry && entry.provinceId && entry.projectId)
+      : [];
+
+    this.state.command = {
+      ...baseline,
+      ...this.state.command,
+      provinces: normalizedProvinces,
+      queue,
+      doctrine: this.state.command.doctrine || baseline.doctrine,
+      unlockedDoctrines:
+        Array.isArray(this.state.command.unlockedDoctrines) && this.state.command.unlockedDoctrines.length
+          ? this.state.command.unlockedDoctrines
+          : baseline.unlockedDoctrines,
+      supplyLines: Array.isArray(this.state.command.supplyLines) ? this.state.command.supplyLines : [],
+    };
+  }
+
+  ensureDispatchState() {
+    const baseline = createInitialDispatchState();
+    if (!this.state.dispatch) {
+      this.state.dispatch = baseline;
+      return;
+    }
+
+    const units = Array.isArray(this.state.dispatch.units) ? this.state.dispatch.units : [];
+    const normalizedUnits = baseline.units.map((preset) => {
+      const existing = units.find(
+        (unit) => unit.templateId === preset.templateId || unit.id === preset.id || unit.templateId === preset.id
+      );
+      return {
+        ...preset,
+        ...existing,
+        id: existing?.id || preset.id,
+        templateId: preset.templateId,
+        status: existing?.status || 'ready',
+        readiness: typeof existing?.readiness === 'number' ? existing.readiness : preset.readiness,
+        description: existing?.description || preset.description,
+      };
+    });
+
+    const missions = Array.isArray(this.state.dispatch.missions)
+      ? this.state.dispatch.missions.map((mission) => ({
+          ...mission,
+          status: mission?.status || 'pending',
+          requiredTypes: Array.isArray(mission?.requiredTypes) ? mission.requiredTypes : [],
+          assignedUnits: Array.isArray(mission?.assignedUnits) ? mission.assignedUnits : [],
+          duration: typeof mission?.duration === 'number' ? mission.duration : mission?.remaining || 0,
+          remaining: typeof mission?.remaining === 'number' ? mission.remaining : mission?.duration || 0,
+          expiry: typeof mission?.expiry === 'number' ? mission.expiry : 360,
+        }))
+      : [];
+
+    this.state.dispatch = {
+      ...baseline,
+      ...this.state.dispatch,
+      units: normalizedUnits,
+      missions,
+      history: Array.isArray(this.state.dispatch.history) ? this.state.dispatch.history : [],
+    };
+  }
   setupGuildUI() {
     this.guildPanels = {
       empty: document.getElementById('guild-empty'),
@@ -751,6 +1105,618 @@ export class GameEngine {
     });
   }
 
+  setupOperationsUI() {
+    if (!this.hasDOM) return;
+    const provinceList = document.getElementById('province-list');
+    provinceList?.addEventListener('change', (event) => {
+      const select = event.target.closest('[data-province-focus]');
+      if (!select) return;
+      const provinceId = select.dataset.provinceId;
+      const focus = select.value;
+      if (provinceId) {
+        this.updateProvinceFocus(provinceId, focus);
+      }
+    });
+
+    const doctrineSelect = document.getElementById('doctrine-select');
+    doctrineSelect?.addEventListener('change', (event) => {
+      const value = event.target.value;
+      this.state.command.doctrine = value;
+      this.toast.show(`Neue Doktrin aktiv: ${this.getDoctrineLabel(value)}.`);
+      this.renderOperationsWindow();
+      this.persistState();
+    });
+
+    const projectForm = document.getElementById('province-project-form');
+    projectForm?.addEventListener('submit', (event) => this.submitProvinceProject(event));
+  }
+
+  setupDispatchUI() {
+    if (!this.hasDOM) return;
+    const missionList = document.getElementById('dispatch-mission-list');
+    missionList?.addEventListener('click', (event) => {
+      const startBtn = event.target.closest('[data-dispatch-start]');
+      if (startBtn) {
+        this.dispatchMission(startBtn.dataset.dispatchStart);
+        return;
+      }
+      const abortBtn = event.target.closest('[data-dispatch-abort]');
+      if (abortBtn) {
+        this.abortMission(abortBtn.dataset.dispatchAbort);
+      }
+    });
+  }
+
+  getDoctrineLabel(key) {
+    switch (key) {
+      case 'Fortifikation':
+        return 'Fortifikation';
+      case 'Handelsnetz':
+        return 'Handelsnetz';
+      case 'Expansion':
+      default:
+        return 'Expansion';
+    }
+  }
+
+  getDoctrineModifiers() {
+    const doctrine = this.state.command?.doctrine || 'Expansion';
+    if (doctrine === 'Fortifikation') {
+      return { defense: 14, logistics: 0.01 };
+    }
+    if (doctrine === 'Handelsnetz') {
+      return { market: 0.08, production: 0.02 };
+    }
+    return { production: 0.04, logistics: 0.02 };
+  }
+
+  getFocusLabel(focus) {
+    switch (focus) {
+      case 'produktion':
+        return 'Produktion';
+      case 'verteidigung':
+        return 'Verteidigung';
+      case 'handel':
+        return 'Handel';
+      case 'kultur':
+        return 'Kultur';
+      default:
+        return 'Allgemein';
+    }
+  }
+
+  updateProvinceFocus(provinceId, focus) {
+    const province = this.state.command.provinces.find((entry) => entry.id === provinceId);
+    if (!province || province.focus === focus) return;
+    province.focus = focus;
+    this.toast.show(`${province.name} richtet sich nun auf ${this.getFocusLabel(focus)} aus.`);
+    this.renderOperationsWindow();
+    this.persistState();
+    this.render();
+  }
+
+  submitProvinceProject(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const provinceId = formData.get('province');
+    const projectId = formData.get('project');
+    const province = this.state.command.provinces.find((entry) => entry.id === provinceId);
+    const project = PROVINCE_PROJECTS.find((entry) => entry.id === projectId);
+    if (!province || !project) {
+      this.toast.show('Bitte wähle eine gültige Provinz und ein Projekt.');
+      return;
+    }
+    if (this.state.credits < project.cost) {
+      this.toast.show('Es fehlen Credits für dieses Bauvorhaben.');
+      return;
+    }
+    if (
+      this.state.command.queue.some(
+        (entry) => entry.provinceId === provinceId && entry.projectId === projectId && entry.remaining > 0
+      )
+    ) {
+      this.toast.show('Dieses Projekt befindet sich bereits in der Warteschlange.');
+      return;
+    }
+    const queueEntry = {
+      id: generateId(),
+      provinceId,
+      projectId,
+      remaining: project.duration,
+      duration: project.duration,
+    };
+    this.state.command.queue.push(queueEntry);
+    this.state.credits -= project.cost;
+    this.toast.show(`${project.name} wurde für ${province.name} eingeplant.`);
+    form.reset();
+    this.render();
+    this.persistState();
+  }
+
+  formatDuration(minutes) {
+    const total = Math.max(0, Math.ceil(minutes));
+    const hours = Math.floor(total / 60);
+    const mins = total % 60;
+    if (hours > 0) {
+      return `${hours}h ${mins.toString().padStart(2, '0')}m`;
+    }
+    return `${mins}m`;
+  }
+
+  renderOperationsWindow() {
+    if (!this.hasDOM) return;
+    const provinceList = document.getElementById('province-list');
+    if (provinceList) {
+      provinceList.innerHTML = '';
+      if (!this.state.command.provinces.length) {
+        provinceList.innerHTML = '<p class="muted">Keine Provinzen unter Kontrolle.</p>';
+      } else {
+        this.state.command.provinces.forEach((province) => {
+          const card = document.createElement('article');
+          card.className = 'province-card';
+          card.innerHTML = `
+            <header>
+              <h3>${province.name}</h3>
+              <small>${province.summary}</small>
+            </header>
+            <dl>
+              <div><dt>Einwohner</dt><dd>${Math.round(province.population).toLocaleString('de-DE')}</dd></div>
+              <div><dt>Prosperität</dt><dd>${Math.round(province.prosperity)}%</dd></div>
+              <div><dt>Verteidigung</dt><dd>${Math.round(province.defense)}%</dd></div>
+              <div><dt>Kultur</dt><dd>${Math.round(province.culture)}%</dd></div>
+            </dl>
+            <label class="focus-select">
+              Strategischer Fokus
+              <select data-province-focus data-province-id="${province.id}">
+                <option value="produktion" ${province.focus === 'produktion' ? 'selected' : ''}>Produktion</option>
+                <option value="verteidigung" ${province.focus === 'verteidigung' ? 'selected' : ''}>Verteidigung</option>
+                <option value="handel" ${province.focus === 'handel' ? 'selected' : ''}>Handel</option>
+                <option value="kultur" ${province.focus === 'kultur' ? 'selected' : ''}>Kultur</option>
+              </select>
+            </label>
+            <p class="province-structures"><strong>Strukturen:</strong> ${
+              province.structures.length ? province.structures.join(', ') : 'Noch keine Projekte abgeschlossen.'
+            }</p>
+          `;
+          provinceList.appendChild(card);
+        });
+      }
+    }
+
+    const provinceSelect = document.getElementById('province-select');
+    if (provinceSelect) {
+      const previous = provinceSelect.value;
+      provinceSelect.innerHTML = this.state.command.provinces
+        .map((province) => `<option value="${province.id}">${province.name}</option>`)
+        .join('');
+      if (previous) {
+        provinceSelect.value = previous;
+      }
+      if (!provinceSelect.value && this.state.command.provinces.length) {
+        provinceSelect.value = this.state.command.provinces[0].id;
+      }
+    }
+
+    const projectSelect = document.getElementById('province-project-select');
+    if (projectSelect) {
+      const previousProject = projectSelect.value;
+      projectSelect.innerHTML = PROVINCE_PROJECTS.map(
+        (project) => `<option value="${project.id}">${project.name} — ${project.cost} cr</option>`
+      ).join('');
+      if (previousProject) {
+        projectSelect.value = previousProject;
+      }
+      if (!projectSelect.value && PROVINCE_PROJECTS.length) {
+        projectSelect.value = PROVINCE_PROJECTS[0].id;
+      }
+    }
+
+    const doctrineSelect = document.getElementById('doctrine-select');
+    if (doctrineSelect) {
+      doctrineSelect.value = this.state.command.doctrine;
+    }
+
+    const queueList = document.getElementById('province-queue');
+    if (queueList) {
+      queueList.innerHTML = '';
+      if (!this.state.command.queue.length) {
+        queueList.innerHTML = '<li class="muted">Keine laufenden Projekte.</li>';
+      } else {
+        this.state.command.queue.forEach((entry) => {
+          const project = PROVINCE_PROJECTS.find((item) => item.id === entry.projectId);
+          const province = this.state.command.provinces.find((item) => item.id === entry.provinceId);
+          if (!project || !province) return;
+          const progress = entry.duration
+            ? Math.min(100, Math.max(0, ((entry.duration - entry.remaining) / entry.duration) * 100))
+            : 0;
+          const li = document.createElement('li');
+          li.className = 'queue-item';
+          li.innerHTML = `
+            <div>
+              <strong>${project.name}</strong>
+              <small>${province.name}</small>
+              <p>${project.description}</p>
+            </div>
+            <div class="queue-progress">
+              <div class="progress-bar"><span style="width:${progress.toFixed(1)}%"></span></div>
+              <small>Noch ${this.formatDuration(entry.remaining)}</small>
+            </div>
+          `;
+          queueList.appendChild(li);
+        });
+      }
+    }
+  }
+
+  getUnitTypeLabel(type) {
+    switch (type) {
+      case 'engineering':
+        return 'Ingenieur';
+      case 'medical':
+        return 'Medizin';
+      case 'airlift':
+        return 'Lufttransport';
+      case 'logistics':
+        return 'Logistik';
+      default:
+        return type;
+    }
+  }
+
+  getMissionStatusLabel(mission) {
+    if (mission.status === 'active') return 'Aktiv';
+    if (mission.status === 'failed') return 'Fehlgeschlagen';
+    if (mission.status === 'completed') return 'Erfolgreich';
+    return 'Bereit';
+  }
+
+  renderDispatchWindow() {
+    if (!this.hasDOM) return;
+    const unitList = document.getElementById('dispatch-unit-list');
+    if (unitList) {
+      unitList.innerHTML = '';
+      this.state.dispatch.units.forEach((unit) => {
+        const card = document.createElement('article');
+        card.className = `unit-card status-${unit.status}`;
+        card.innerHTML = `
+          <header>
+            <h4>${unit.name}</h4>
+            <span class="badge">${this.getUnitTypeLabel(unit.type)}</span>
+          </header>
+          <p>${unit.description}</p>
+          <footer>${unit.status === 'busy' ? 'Im Einsatz' : 'Bereit'}</footer>
+        `;
+        unitList.appendChild(card);
+      });
+    }
+
+    const missionList = document.getElementById('dispatch-mission-list');
+    if (missionList) {
+      missionList.innerHTML = '';
+      if (!this.state.dispatch.missions.length) {
+        missionList.innerHTML = '<li class="muted">Keine offenen Einsätze. Lehne dich nicht zu weit zurück!</li>';
+      } else {
+        this.state.dispatch.missions.forEach((mission) => {
+          const required = mission.requiredTypes
+            .map((type) => `<span class="badge badge-${type}">${this.getUnitTypeLabel(type)}</span>`)
+            .join('');
+          const li = document.createElement('li');
+          li.className = `mission-card mission-${mission.status}`;
+          li.innerHTML = `
+            <div class="mission-head">
+              <div>
+                <h4>${mission.name}</h4>
+                <small>${mission.location} • ${mission.severity.toUpperCase()}</small>
+              </div>
+              <span class="status">${this.getMissionStatusLabel(mission)}</span>
+            </div>
+            <p>${mission.description}</p>
+            <div class="mission-meta">
+              <div><strong>Benötigt:</strong> ${required || 'Flexibel'}</div>
+              <div><strong>Belohnung:</strong> ${
+                mission.reward?.credits ? `${mission.reward.credits} cr` : ''
+              } ${mission.reward?.research ? `• ${mission.reward.research} RP` : ''} ${
+            mission.reward?.influence ? `• ${mission.reward.influence} Einfluss` : ''
+          }</div>
+            </div>
+          `;
+          const footer = document.createElement('div');
+          footer.className = 'mission-actions';
+          if (mission.status === 'pending') {
+            footer.innerHTML = `
+              <span>Verfällt in ${this.formatDuration(mission.expiry)}</span>
+              <button class="btn btn-secondary" data-dispatch-start="${mission.id}">Einsatz starten</button>
+            `;
+          } else if (mission.status === 'active') {
+            footer.innerHTML = `
+              <span>Restzeit ${this.formatDuration(mission.remaining)}</span>
+              <button class="btn btn-outline" data-dispatch-abort="${mission.id}">Abbrechen</button>
+            `;
+          } else {
+            footer.innerHTML = `<span>Abgeschlossen</span>`;
+          }
+          li.appendChild(footer);
+          missionList.appendChild(li);
+        });
+      }
+    }
+
+    const historyList = document.getElementById('dispatch-history');
+    if (historyList) {
+      historyList.innerHTML = '';
+      if (!this.state.dispatch.history.length) {
+        historyList.innerHTML = '<li class="muted">Noch keine Einsätze abgeschlossen.</li>';
+      } else {
+        this.state.dispatch.history.slice(0, 8).forEach((entry) => {
+          const li = document.createElement('li');
+          li.className = entry.success ? 'history-success' : 'history-fail';
+          const timeLabel = `Tag ${entry.day} • ${Math.floor(entry.minuteOfDay / 60)}:${Math.floor(entry.minuteOfDay % 60)
+            .toString()
+            .padStart(2, '0')} Uhr`;
+          li.innerHTML = `
+            <strong>${entry.name}</strong>
+            <small>${timeLabel}</small>
+            ${entry.success && entry.reward?.credits ? `<span>+${Math.round(entry.reward.credits)} cr</span>` : ''}
+            ${entry.note ? `<p>${entry.note}</p>` : ''}
+          `;
+          historyList.appendChild(li);
+        });
+      }
+    }
+  }
+
+  progressCommandQueue(minutes) {
+    if (!this.state.command?.queue?.length) return;
+    const completed = [];
+    this.state.command.queue.forEach((entry) => {
+      entry.remaining -= minutes;
+      if (entry.remaining <= 0) {
+        completed.push(entry);
+      }
+    });
+    if (!completed.length) return;
+    completed.forEach((entry) => this.applyProjectEffect(entry));
+    this.state.command.queue = this.state.command.queue.filter((entry) => entry.remaining > 0);
+  }
+
+  applyProjectEffect(entry) {
+    const project = PROVINCE_PROJECTS.find((item) => item.id === entry.projectId);
+    const province = this.state.command.provinces.find((item) => item.id === entry.provinceId);
+    if (!project || !province) return;
+    const effects = project.effects || {};
+    if (effects.production) {
+      province.productionBonus = (province.productionBonus || 0) + effects.production;
+    }
+    if (effects.logistics) {
+      province.logisticsBonus = (province.logisticsBonus || 0) + effects.logistics;
+    }
+    if (effects.market) {
+      province.marketBonus = (province.marketBonus || 0) + effects.market;
+    }
+    if (effects.defense) {
+      province.defense = Math.min(100, province.defense + effects.defense);
+    }
+    if (effects.prosperity) {
+      province.prosperity = Math.min(100, province.prosperity + effects.prosperity);
+    }
+    if (effects.culture) {
+      province.culture = Math.min(100, province.culture + effects.culture);
+    }
+    if (effects.research) {
+      this.state.researchPoints += effects.research;
+    }
+    if (effects.credits) {
+      this.state.credits += effects.credits;
+    }
+    if (effects.structure && !province.structures.includes(effects.structure)) {
+      province.structures.push(effects.structure);
+    }
+    if (this.state.timeline) {
+      this.state.timeline.unshift({
+        id: entry.id,
+        type: 'province_project',
+        day: this.state.day,
+        minuteOfDay: this.state.minuteOfDay,
+        summary: `${project.name} in ${province.name} abgeschlossen.`,
+      });
+      this.state.timeline = this.state.timeline.slice(0, 50);
+    }
+    this.toast.show(`${project.name} in ${province.name} abgeschlossen.`);
+    this.renderOperationsWindow();
+  }
+
+  getProvinceProductionBonus() {
+    const provinces = this.state.command?.provinces || [];
+    const focusBonus = provinces.reduce((sum, province) => {
+      let bonus = province.productionBonus || 0;
+      if (province.focus === 'produktion') bonus += 0.05;
+      if (province.focus === 'kultur') bonus += 0.01;
+      return sum + bonus;
+    }, 0);
+    const doctrine = this.getDoctrineModifiers();
+    return focusBonus + (doctrine.production || 0);
+  }
+
+  getProvinceLogisticsBonus() {
+    const provinces = this.state.command?.provinces || [];
+    const focusBonus = provinces.reduce((sum, province) => {
+      let bonus = province.logisticsBonus || 0;
+      if (province.focus === 'handel') bonus += 0.04;
+      if (province.focus === 'verteidigung') bonus += 0.01;
+      return sum + bonus;
+    }, 0);
+    const doctrine = this.getDoctrineModifiers();
+    return focusBonus + (doctrine.logistics || 0);
+  }
+
+  getProvinceMarketBonus() {
+    const provinces = this.state.command?.provinces || [];
+    const focusBonus = provinces.reduce((sum, province) => {
+      let bonus = province.marketBonus || 0;
+      if (province.focus === 'handel') bonus += 0.06;
+      return sum + bonus;
+    }, 0);
+    const doctrine = this.getDoctrineModifiers();
+    return focusBonus + (doctrine.market || 0);
+  }
+
+  calculateDefenseModifier() {
+    const provinces = this.state.command?.provinces || [];
+    if (!provinces.length) return 0;
+    const averageDefense = provinces.reduce((sum, province) => sum + (province.defense || 0), 0) / provinces.length;
+    const doctrine = this.getDoctrineModifiers();
+    return Math.min(0.25, (averageDefense + (doctrine.defense || 0)) / 320);
+  }
+
+  tickDispatch(minutes) {
+    if (!this.state.dispatch) return;
+    this.dispatchSpawnTimer += minutes;
+    if (this.dispatchSpawnTimer >= 75) {
+      this.dispatchSpawnTimer = 0;
+      this.spawnDispatchMission();
+    }
+    const missions = [...this.state.dispatch.missions];
+    missions.forEach((mission) => {
+      if (mission.status === 'active') {
+        mission.remaining -= minutes;
+        if (mission.remaining <= 0) {
+          this.resolveMission(mission, true);
+        }
+      } else if (mission.status === 'pending') {
+        mission.expiry -= minutes;
+        if (mission.expiry <= 0) {
+          this.resolveMission(mission, false, 'Mission verstrichen.');
+        }
+      }
+    });
+    if (this.state.dispatch.missions.length === 0) {
+      this.spawnDispatchMission(true);
+    }
+  }
+
+  spawnDispatchMission(force = false) {
+    if (!this.state.dispatch) return;
+    if (!force && this.state.dispatch.missions.length >= 4) return;
+    const existingTemplates = new Set(this.state.dispatch.missions.map((mission) => mission.templateId));
+    const candidates = DISPATCH_MISSION_PRESETS.filter((preset) => !existingTemplates.has(preset.id));
+    const pool = candidates.length ? candidates : DISPATCH_MISSION_PRESETS;
+    const template = pool[Math.floor(Math.random() * pool.length)];
+    if (!template) return;
+    const mission = {
+      id: generateId(),
+      templateId: template.id,
+      name: template.name,
+      location: template.location,
+      severity: template.severity,
+      duration: template.duration,
+      remaining: template.duration,
+      expiry: template.expiry,
+      requiredTypes: [...template.requiredTypes],
+      reward: { ...template.reward },
+      description: template.description,
+      status: 'pending',
+      assignedUnits: [],
+    };
+    this.state.dispatch.missions.push(mission);
+    if (!force) {
+      this.toast.show(`Neue Einsatzlage: ${mission.name} (${mission.location}).`);
+    }
+    this.renderDispatchWindow();
+  }
+
+  selectUnitsForMission(requiredTypes) {
+    const available = this.state.dispatch.units.filter((unit) => unit.status === 'ready');
+    const selected = [];
+    const used = new Set();
+    requiredTypes.forEach((type) => {
+      const unit = available.find((candidate) => candidate.type === type && !used.has(candidate.id));
+      if (unit) {
+        selected.push(unit);
+        used.add(unit.id);
+      }
+    });
+    if (selected.length !== requiredTypes.length) {
+      return null;
+    }
+    return selected;
+  }
+
+  dispatchMission(missionId) {
+    if (!missionId) return;
+    const mission = this.state.dispatch.missions.find((entry) => entry.id === missionId);
+    if (!mission || mission.status !== 'pending') return;
+    const units = this.selectUnitsForMission(mission.requiredTypes);
+    if (!units) {
+      this.toast.show('Es stehen nicht genügend passende Einheiten bereit.');
+      return;
+    }
+    mission.status = 'active';
+    mission.remaining = mission.duration;
+    mission.assignedUnits = units.map((unit) => unit.id);
+    units.forEach((unit) => {
+      unit.status = 'busy';
+      unit.missionId = mission.id;
+    });
+    this.toast.show(`Einsatz gestartet: ${mission.name}.`);
+    this.renderDispatchWindow();
+    this.persistState();
+  }
+
+  abortMission(missionId) {
+    if (!missionId) return;
+    const mission = this.state.dispatch.missions.find((entry) => entry.id === missionId);
+    if (!mission || mission.status !== 'active') return;
+    this.resolveMission(mission, false, 'Manuell abgebrochen.');
+  }
+
+  releaseUnitsFromMission(missionId) {
+    this.state.dispatch.units.forEach((unit) => {
+      if (unit.missionId === missionId) {
+        unit.status = 'ready';
+        delete unit.missionId;
+      }
+    });
+  }
+
+  resolveMission(mission, success, reason) {
+    this.releaseUnitsFromMission(mission.id);
+    const reward = mission.reward || {};
+    if (success) {
+      const defenseModifier = 1 + this.calculateDefenseModifier();
+      const credits = (reward.credits || 0) * defenseModifier;
+      const research = reward.research || 0;
+      const influence = reward.influence || 0;
+      this.state.credits += credits;
+      this.state.researchPoints += research;
+      this.state.influence.supportGiven += influence;
+      this.state.dispatch.history.unshift({
+        id: mission.id,
+        name: mission.name,
+        success: true,
+        reward: { credits, research, influence },
+        day: this.state.day,
+        minuteOfDay: this.state.minuteOfDay,
+      });
+      this.toast.show(`Mission erfolgreich: ${mission.name}. Belohnung gutgeschrieben.`);
+    } else {
+      this.state.influence.supportReceived += 4;
+      this.state.dispatch.history.unshift({
+        id: mission.id,
+        name: mission.name,
+        success: false,
+        note: reason || 'Mission gescheitert.',
+        day: this.state.day,
+        minuteOfDay: this.state.minuteOfDay,
+      });
+      this.toast.show(reason || `Mission fehlgeschlagen: ${mission.name}.`);
+    }
+    this.state.dispatch.history = this.state.dispatch.history.slice(0, 20);
+    this.state.dispatch.missions = this.state.dispatch.missions.filter((entry) => entry.id !== mission.id);
+    this.renderDispatchWindow();
+    this.persistState();
+    this.render();
+  }
   applyPreferences() {
     if (!this.hasDOM) return;
     const fontScale = this.preferences.fontScale || 1;
@@ -1578,6 +2544,8 @@ export class GameEngine {
     this.advanceTime(minutesToAdvance);
     this.produceResources(minutesToAdvance);
     this.generateResearch(minutesToAdvance);
+    this.progressCommandQueue(minutesToAdvance);
+    this.tickDispatch(minutesToAdvance);
     this.render();
     this.persistState();
   }
@@ -1609,14 +2577,15 @@ export class GameEngine {
 
   produceResources(minutes) {
     const productionMultiplier = 1 + (this.state.research.bonuses.production || 0);
+    const provinceProductionMultiplier = 1 + this.getProvinceProductionBonus();
     const storageBonus = 1 + (this.state.research.bonuses.storage || 0);
-    const globalLogisticsBonus = 1 + (this.state.research.bonuses.logistics || 0);
+    const globalLogisticsBonus = (1 + (this.state.research.bonuses.logistics || 0)) * (1 + this.getProvinceLogisticsBonus());
     const minuteFactor = minutes / 60;
     const outputs = {};
 
     this.state.mines.forEach((mine) => {
       const resource = RESOURCE_DEFS[mine.resource];
-      const baseRate = resource.baseRate * productionMultiplier;
+      const baseRate = resource.baseRate * productionMultiplier * provinceProductionMultiplier;
       const workforceEfficiency = Math.min(mine.workers / resource.optimalWorkforce, 1.5);
       const levelBonus = 1 + (mine.level - 1) * 0.2;
       const localLogisticsBonus = 1 + (mine.logisticsLevel - 1) * 0.15;
@@ -1644,7 +2613,8 @@ export class GameEngine {
       outputs[mine.resource] = (outputs[mine.resource] || 0) + output;
     });
 
-    let remainingCapacity = this.state.logistics.capacity * globalLogisticsBonus * minuteFactor * this.getLogisticsMultiplier();
+    let remainingCapacity =
+      this.state.logistics.capacity * globalLogisticsBonus * minuteFactor * this.getLogisticsMultiplier();
 
     this.state.mines.forEach((mine) => {
       if (remainingCapacity <= 0) return;
@@ -1716,6 +2686,7 @@ export class GameEngine {
         }
       }
     });
+    modifier += this.getProvinceMarketBonus(resourceKey);
     return modifier;
   }
 
@@ -1740,6 +2711,8 @@ export class GameEngine {
     this.updateLogistics();
     this.renderResearch();
     this.populateZoneMineSelector();
+    this.renderOperationsWindow();
+    this.renderDispatchWindow();
     this.renderGuildWindow();
     this.renderCommunityWindow();
   }

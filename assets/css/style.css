@@ -725,6 +725,305 @@ img {
   gap: 1.5rem;
 }
 
+.operations-body {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.operations-overview {
+  display: grid;
+  gap: 1rem;
+}
+
+.doctrine-select label {
+  display: grid;
+  gap: 0.5rem;
+  background: rgba(10, 14, 23, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.doctrine-select select,
+.operations-body select {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.6);
+  color: var(--text-light);
+}
+
+.province-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.province-card {
+  background: rgba(10, 14, 23, 0.6);
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.province-card header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.province-card dl {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.province-card dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.province-card dd {
+  font-weight: 600;
+}
+
+.province-structures {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.project-form {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: end;
+}
+
+.project-form label {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.queue-list {
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.queue-item {
+  background: rgba(10, 14, 23, 0.6);
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 0.85rem 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.queue-item strong {
+  font-size: 1rem;
+}
+
+.queue-progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.progress-bar {
+  position: relative;
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(37, 99, 235, 0.15);
+}
+
+.progress-bar span {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--secondary), var(--accent));
+}
+
+.queue-progress small {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.dispatch-body {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.unit-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.unit-card {
+  background: rgba(10, 14, 23, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.unit-card.status-busy {
+  border-color: rgba(37, 99, 235, 0.45);
+}
+
+.unit-card.status-ready {
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.unit-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.unit-card footer {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.18);
+}
+
+.badge-engineering {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+}
+
+.badge-medical {
+  background: rgba(236, 72, 153, 0.2);
+  border-color: rgba(236, 72, 153, 0.45);
+  color: #f472b6;
+}
+
+.badge-airlift {
+  background: rgba(14, 165, 233, 0.18);
+  border-color: rgba(14, 165, 233, 0.42);
+  color: #38bdf8;
+}
+
+.badge-logistics {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.45);
+  color: #4ade80;
+}
+
+.mission-list {
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.mission-card {
+  background: rgba(10, 14, 23, 0.6);
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.mission-card.mission-active {
+  border-color: rgba(37, 99, 235, 0.5);
+}
+
+.mission-card.mission-failed {
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.mission-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.mission-head small {
+  color: var(--text-muted);
+}
+
+.mission-meta {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.mission-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mission-actions span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.status {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.history-list {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.history-success,
+.history-fail {
+  border-radius: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.history-success {
+  background: rgba(22, 101, 52, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.history-fail {
+  background: rgba(127, 29, 29, 0.25);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.history-list small {
+  color: var(--text-muted);
+}
+
+.history-list span {
+  font-weight: 600;
+}
+
 .event-list,
 .leaderboard,
 .support-queue {
@@ -795,7 +1094,11 @@ img {
   border-radius: 1rem;
   padding: 1rem 1.25rem;
   display: grid;
-  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  background: rgba(10, 14, 22, 0.95);
+  border-radius: 1.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  overflow: hidden;
 }
 
 #settings-form legend {
